@@ -103,25 +103,37 @@ class _SignupPageState extends State<SignupPage> {
                                       : () async {
                                           var firebaseUser =
                                               FirebaseAuth.instance.currentUser;
-                                              print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
-                                              print(firebaseUser!.uid);
-                                              print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
-                                          await userColl.doc(firebaseUser!.uid).set({
-                                            "name": name.text,
-                                            "phone": firebaseUser.phoneNumber,
-                                            "gender": gender.text,
-                                            "county": county.text,
-                                            "subcounty": subcounty.text,
-                                            "collectionPoint":
-                                                collectionPoint.text,
-                                            "role": role.text
-                                          }).then((value) {
+                                          print(
+                                              'UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
+                                          print(firebaseUser!.uid);
+                                          print(
+                                              'UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
+                                          try {
+                                            await userColl
+                                                .doc(firebaseUser.uid)
+                                                .set({
+                                              "name": name.text,
+                                              "phone": firebaseUser.phoneNumber,
+                                              "gender": gender.text,
+                                              "county": county.text,
+                                              "subcounty": subcounty.text,
+                                              "collectionPoint":
+                                                  collectionPoint.text,
+                                              "role": role.text
+                                            }).then((value) {
+                                              print(
+                                                  '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+                                              print(firebaseUser.phoneNumber);
+                                              print(
+                                                  '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+                                            });
+                                          } catch (e) {
                                             print(
-                                                '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-                                            print(value);
+                                                'ERERERERERERRERERRERERRERERRERERRERERER');
+                                            print(e);
                                             print(
-                                                '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-                                          });
+                                                'ERERERERERERRERERRERERRERERRERERRERERER');
+                                          }
                                         }
                                   : () {},
                           onStepCancel: _currentStep > 0
