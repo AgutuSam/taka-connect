@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "893474874220",
+    "project_id": "taka-connect",
+    "storage_bucket": "taka-connect.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:893474874220:android:0d0cd3f36804b4c7e00949",
+        "android_client_info": {
+          "package_name": "com.example.takaconnect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "893474874220-hc3dmdk5lsq7ughjmue9lmjggveq4nb9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.takaconnect",
+            "certificate_hash": "cb4a253446e3f090d4f3369c12b64c72a4f4e415"
+          }
+        },
+        {
+          "client_id": "893474874220-oknp61m5ncu6eqkhmtl8hsmu629k0ro6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE0e43fbDSG5wRFrUqgKpep7pXHVrOUBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "893474874220-oknp61m5ncu6eqkhmtl8hsmu629k0ro6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
