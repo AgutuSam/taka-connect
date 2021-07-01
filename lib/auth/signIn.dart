@@ -6,7 +6,6 @@ import 'package:takaconnect/auth/signUp.dart';
 import 'package:takaconnect/modules/categories.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
-import 'dart:async';
 
 class SigninPage extends StatefulWidget {
   @override
@@ -24,7 +23,7 @@ class _SigninPageState extends State<SigninPage> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
   late String _verificationId;
-  final SmsAutoFill _autoFill = SmsAutoFill();
+  // final SmsAutoFill _autoFill = SmsAutoFill();
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('users');
 
@@ -62,13 +61,7 @@ class _SigninPageState extends State<SigninPage> {
     //Callback for when the user has already previously signed in with this phone number on this device
     PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential phoneAuthCredential) async {
-      var doc = await userColl.doc(_auth.currentUser!.uid).get();
-      await _auth.signInWithCredential(phoneAuthCredential).then((value) => doc
-              .exists
-          ? Navigator.push(context,
-              MaterialPageRoute(builder: (context) => HomeCategories()))
-          : Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SigninPage())));
+      await _auth.signInWithCredential(phoneAuthCredential);
       showSnackbar(
           "Phone number automatically verified and user signed in: ${_auth.currentUser!.uid}");
     };
@@ -97,6 +90,12 @@ class _SigninPageState extends State<SigninPage> {
         final User? user = (await _auth.signInWithCredential(credential)).user;
 
         showSnackbar("Successfully signed in UID: ${user!.uid}");
+        var doc = await userColl.doc(_auth.currentUser!.uid).get();
+        doc.exists
+            ? Navigator.push(context,
+                MaterialPageRoute(builder: (context) => HomeCategories()))
+            : Navigator.push(
+                context, MaterialPageRoute(builder: (context) => SignupPage()));
       } catch (e) {
         showSnackbar("Failed to sign in: " + e.toString());
       }
@@ -281,11 +280,6 @@ class _SigninPageState extends State<SigninPage> {
                           color: Colors.teal.shade900,
                           onPressed: () {
                             signInWithPhoneNumber();
-
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => HomeCategories()));
                           },
                           elevation: 11,
                           shape: RoundedRectangleBorder(
@@ -310,24 +304,24 @@ class _SigninPageState extends State<SigninPage> {
                     SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text("Dont have an account?"),
-                        // ignore: deprecated_member_use
-                        FlatButton(
-                          child: Text("Sign up"),
-                          textColor: Colors.white,
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SignupPage(),
-                                    fullscreenDialog: true));
-                          },
-                        )
-                      ],
-                    )
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: <Widget>[
+                    //     Text("Dont have an account?"),
+                    //     // ignore: deprecated_member_use
+                    //     FlatButton(
+                    //       child: Text("Sign up"),
+                    //       textColor: Colors.white,
+                    //       onPressed: () {
+                    //         Navigator.push(
+                    //             context,
+                    //             MaterialPageRoute(
+                    //                 builder: (context) => SignupPage(),
+                    //                 fullscreenDialog: true));
+                    //       },
+                    //     )
+                    //   ],
+                    // )
                   ],
                 ),
               )

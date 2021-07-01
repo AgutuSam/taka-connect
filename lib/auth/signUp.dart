@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:takaconnect/auth/signIn.dart';
+import 'package:takaconnect/modules/categories.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -33,6 +34,35 @@ class _SignupPageState extends State<SignupPage> {
     void showSnackbar(String message) {
       // ignore: deprecated_member_use
       _scaffoldKey.currentState!.showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    void addUser(String name, String gender, String county, String subcounty,
+        String collectionPoint, String role) async {
+      var firebaseUser = FirebaseAuth.instance.currentUser;
+      print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
+      print(firebaseUser!.uid);
+      print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
+      try {
+        await userColl.doc(firebaseUser.uid).set({
+          "name": name,
+          "phone": firebaseUser.phoneNumber,
+          "gender": gender,
+          "county": county,
+          "subcounty": subcounty,
+          "collectionPoint": collectionPoint,
+          "role": role
+        }).then((value) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => HomeCategories()));
+          print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+          print(firebaseUser.phoneNumber);
+          print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
+        });
+      } catch (e) {
+        print('ERERERERERERRERERRERERRERERRERERRERERER');
+        print(e);
+        print('ERERERERERERRERERRERERRERERRERERRERERER');
+      }
     }
 
     return Scaffold(
@@ -75,10 +105,18 @@ class _SignupPageState extends State<SignupPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Center(
-                          child: Container(
+                          child: Card(
+                            margin: EdgeInsets.only(
+                                left: 30, right: 30, top: 20, bottom: 20),
+                            elevation: 11,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(40))),
                             child: Image(
+                              height: 150,
+                              width: 150,
                               image:
-                                  Image.asset('assets/appIcons/72.png').image,
+                                  Image.asset('assets/appIcons/172.png').image,
                             ),
                           ),
                         ),
@@ -93,48 +131,20 @@ class _SignupPageState extends State<SignupPage> {
                           onStepContinue: _currentStep < 2
                               ? () => setState(() => _currentStep += 1)
                               : _currentStep < 3
-                                  ? () => name.text.isEmpty ||
-                                          gender.text.isEmpty ||
-                                          county.text.isEmpty ||
-                                          subcounty.text.isEmpty ||
-                                          collectionPoint.text.isEmpty ||
-                                          role.text.isEmpty
-                                      ? showSnackbar('Inputs cannot be empty')
-                                      : () async {
-                                          var firebaseUser =
-                                              FirebaseAuth.instance.currentUser;
-                                          print(
-                                              'UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
-                                          print(firebaseUser!.uid);
-                                          print(
-                                              'UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
-                                          try {
-                                            await userColl
-                                                .doc(firebaseUser.uid)
-                                                .set({
-                                              "name": name.text,
-                                              "phone": firebaseUser.phoneNumber,
-                                              "gender": gender.text,
-                                              "county": county.text,
-                                              "subcounty": subcounty.text,
-                                              "collectionPoint":
-                                                  collectionPoint.text,
-                                              "role": role.text
-                                            }).then((value) {
-                                              print(
-                                                  '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-                                              print(firebaseUser.phoneNumber);
-                                              print(
-                                                  '&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-                                            });
-                                          } catch (e) {
-                                            print(
-                                                'ERERERERERERRERERRERERRERERRERERRERERER');
-                                            print(e);
-                                            print(
-                                                'ERERERERERERRERERRERERRERERRERERRERERER');
-                                          }
-                                        }
+                                  ? () => name.text.isNotEmpty ||
+                                          gender.text.isNotEmpty ||
+                                          county.text.isNotEmpty ||
+                                          subcounty.text.isNotEmpty ||
+                                          collectionPoint.text.isNotEmpty ||
+                                          role.text.isNotEmpty
+                                      ? addUser(
+                                          name.text,
+                                          gender.text,
+                                          county.text,
+                                          subcounty.text,
+                                          collectionPoint.text,
+                                          role.text)
+                                      : showSnackbar('Inputs cannot be empty')
                                   : () {},
                           onStepCancel: _currentStep > 0
                               ? () => setState(() => _currentStep -= 1)
@@ -365,7 +375,7 @@ class _SignupPageState extends State<SignupPage> {
               //         Navigator.push(
               //             context,
               //             MaterialPageRoute(
-              //                 builder: (context) => SigninPage()));
+              //                 builder: (context) => HomeCategories()));
               //       },
               //     )
               //   ],
