@@ -131,7 +131,7 @@ class _CategoryHomePageState extends State<CategoryHomePage>
       body: Stack(
         children: <Widget>[
           Container(
-            height: 1000,
+            height: MediaQuery.of(context).size.height * 5.4,
             child: RotatedBox(
               quarterTurns: 4,
               child: WaveWidget(
@@ -141,7 +141,7 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                     [Colors.green.shade300, Colors.green.shade500],
                   ],
                   durations: [19440, 10800],
-                  heightPercentages: [0.19, 0.22],
+                  heightPercentages: [0.29, 0.32],
                   blur: MaskFilter.blur(BlurStyle.solid, 10),
                   gradientBegin: Alignment.bottomLeft,
                   gradientEnd: Alignment.topRight,
@@ -154,98 +154,94 @@ class _CategoryHomePageState extends State<CategoryHomePage>
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 15.0),
-            child: SingleChildScrollView(
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                child: Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height * .24,
-                        width: MediaQuery.of(context).size.width,
-                        child: Expanded(
-                          child: ListView.builder(
-                            padding: const EdgeInsets.only(
-                                top: 0, bottom: 0, right: 16, left: 16),
-                            itemCount: Team.category.length,
-                            scrollDirection: Axis.vertical,
-                            itemBuilder: (BuildContext context, int index) {
-                              return CardIconView(
-                                teamMember: Team.category[index],
-                                title: widget.wasteTitle,
-                              );
-                            },
-                          ),
-                        ),
+          Container(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Container(
+              height: MediaQuery.of(context).size.height * .9,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * .32,
+                      width: MediaQuery.of(context).size.width,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.only(
+                            top: 0, bottom: 0, right: 16, left: 16),
+                        itemCount: Team.category.length,
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (BuildContext context, int index) {
+                          return CardIconView(
+                            teamMember: Team.category[index],
+                            title: widget.wasteTitle,
+                          );
+                        },
                       ),
-                      // SizedBox(
-                      //   height: MediaQuery.of(context).size.height * .05,
-                      //   child: Container(
-                      //     padding: EdgeInsets.only(bottom: 4, top: 4),
-                      //     color: Colors.green.shade400,
-                      //   ),
-                      // ),
-                      Container(
-                        padding: EdgeInsets.only(top: 58, bottom: 2),
-                        height: MediaQuery.of(context).size.height * .6,
-                        width: MediaQuery.of(context).size.width,
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          childAspectRatio: 1.2,
-                          padding: const EdgeInsets.only(
-                              right: 16.0, left: 16.0, top: 2.0, bottom: 2.0),
-                          mainAxisSpacing: 8.0,
-                          crossAxisSpacing: 8.0,
-                          children: <Widget>[
-                            category(
-                                0.0,
-                                22.0,
-                                0.0,
-                                22.0,
-                                Colors.blueGrey,
-                                // AnalysisPage(),
-                                FeedbackScreen(),
-                                'assets/background/pexels-mohamed-abdelgaffar-771742.jpg',
-                                Icons.analytics_rounded,
-                                'Analytics'),
-                            category(
-                                22.0,
-                                0.0,
-                                22.0,
-                                0.0,
-                                Colors.orange,
-                                Profile(),
-                                'assets/background/fabio-oyXis2kALVg-unsplash.jpg',
-                                Icons.person,
-                                'Profile'),
-                            category(
-                                0.0,
-                                22.0,
-                                22.0,
-                                22.0,
-                                Colors.blueAccent,
-                                HelpScreen(),
-                                'assets/background/pexels-pixabay-264547.jpg',
-                                Icons.help_outline,
-                                'Help'),
-                            category(
-                                22.0,
-                                0.0,
-                                22.0,
-                                22.0,
-                                Colors.teal,
-                                SigninPage(),
-                                'assets/background/pexels-aradhana-2697288.jpg',
-                                Icons.logout,
-                                'Logout'),
-                          ],
-                        ),
+                    ),
+                    // SizedBox(
+                    //   height: MediaQuery.of(context).size.height * .05,
+                    //   child: Container(
+                    //     padding: EdgeInsets.only(bottom: 4, top: 4),
+                    //     color: Colors.green.shade400,
+                    //   ),
+                    // ),
+                    Container(
+                      padding: EdgeInsets.only(top: 35, bottom: 2),
+                      height: MediaQuery.of(context).size.height * .54,
+                      width: MediaQuery.of(context).size.width,
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.2,
+                        padding: const EdgeInsets.only(
+                            right: 16.0, left: 16.0, top: 2.0, bottom: 2.0),
+                        mainAxisSpacing: 8.0,
+                        crossAxisSpacing: 8.0,
+                        children: <Widget>[
+                          category(
+                              0.0,
+                              22.0,
+                              0.0,
+                              22.0,
+                              Colors.blueGrey,
+                              // AnalysisPage(),
+                              FeedbackScreen(),
+                              'assets/background/pexels-mohamed-abdelgaffar-771742.jpg',
+                              Icons.analytics_rounded,
+                              'Analytics'),
+                          category(
+                              22.0,
+                              0.0,
+                              22.0,
+                              0.0,
+                              Colors.orange,
+                              Profile(),
+                              'assets/background/fabio-oyXis2kALVg-unsplash.jpg',
+                              Icons.person,
+                              'Profile'),
+                          category(
+                              0.0,
+                              22.0,
+                              22.0,
+                              22.0,
+                              Colors.blueAccent,
+                              HelpScreen(),
+                              'assets/background/pexels-pixabay-264547.jpg',
+                              Icons.help_outline,
+                              'Help'),
+                          category(
+                              22.0,
+                              0.0,
+                              22.0,
+                              22.0,
+                              Colors.teal,
+                              SigninPage(),
+                              'assets/background/pexels-aradhana-2697288.jpg',
+                              Icons.logout,
+                              'Logout'),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

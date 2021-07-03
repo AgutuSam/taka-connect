@@ -106,17 +106,19 @@ class _SignupPageState extends State<SignupPage> {
                       children: <Widget>[
                         Center(
                           child: Card(
+                            color: Colors.transparent,
                             margin: EdgeInsets.only(
                                 left: 30, right: 30, top: 20, bottom: 20),
                             elevation: 11,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(40))),
+                                    BorderRadius.all(Radius.circular(70))),
                             child: Image(
                               height: 150,
                               width: 150,
                               image:
-                                  Image.asset('assets/appIcons/172.png').image,
+                                  Image.asset('assets/appIcons/ic_launcher.png')
+                                      .image,
                             ),
                           ),
                         ),

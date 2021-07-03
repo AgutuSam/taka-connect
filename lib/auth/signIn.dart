@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 import 'package:takaconnect/auth/signUp.dart';
@@ -15,6 +16,7 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
+  late bool verifyLoading = false;
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -49,18 +51,24 @@ class _SigninPageState extends State<SigninPage> {
     //Callback for when the code is sent
     PhoneCodeSent codeSent =
         (String verificationId, [int? forceResendingToken]) async {
+      setState(() {
+        verifyLoading = !verifyLoading;
+      });
       showSnackbar('Please check your phone for the verification code.');
       _verificationId = verificationId;
     };
 
     PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
         (String verificationId) {
-      showSnackbar("verification code: " + verificationId);
+      showSnackbar("verification code: " + verificationId.substring(0, 12));
       _verificationId = verificationId;
     };
     //Callback for when the user has already previously signed in with this phone number on this device
     PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential phoneAuthCredential) async {
+      setState(() {
+        verifyLoading = !verifyLoading;
+      });
       await _auth.signInWithCredential(phoneAuthCredential);
       showSnackbar(
           "Phone number automatically verified and user signed in: ${_auth.currentUser!.uid}");
@@ -68,8 +76,13 @@ class _SigninPageState extends State<SigninPage> {
 
     void verifyPhoneNumber() async {
       try {
+        setState(() {
+          verifyLoading = !verifyLoading;
+        });
         await _auth.verifyPhoneNumber(
-            phoneNumber: _phoneNumberController.text,
+            phoneNumber: _phoneNumberController.text.substring(0, 2) == '07'
+                ? '+254${_phoneNumberController.text.substring(1, _phoneNumberController.text.length)}'
+                : _phoneNumberController.text,
             timeout: const Duration(seconds: 5),
             verificationCompleted: verificationCompleted,
             verificationFailed: verificationFailed,
@@ -141,16 +154,19 @@ class _SigninPageState extends State<SigninPage> {
                     children: <Widget>[
                       Center(
                         child: Card(
+                          color: Colors.transparent,
                           margin: EdgeInsets.only(
                               left: 30, right: 30, top: 20, bottom: 20),
                           elevation: 11,
                           shape: RoundedRectangleBorder(
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(40))),
+                                  BorderRadius.all(Radius.circular(70))),
                           child: Image(
                             height: 150,
                             width: 150,
-                            image: Image.asset('assets/appIcons/172.png').image,
+                            image:
+                                Image.asset('assets/appIcons/ic_launcher.png')
+                                    .image,
                           ),
                         ),
                       ),
@@ -327,6 +343,21 @@ class _SigninPageState extends State<SigninPage> {
               )
             ],
           ),
+          Visibility(
+              visible: verifyLoading,
+              child: Container(
+                  color: Colors.white60,
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      child: FlareActor(
+                        'assets/loading.flr',
+                        animation: 'loading',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  )))
         ],
       ),
     );
