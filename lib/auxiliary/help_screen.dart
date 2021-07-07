@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takaconnect/utils/navbar1.dart';
 
 class HelpScreen extends StatefulWidget {
   @override
@@ -18,6 +19,12 @@ class _HelpScreenState extends State<HelpScreen> {
       child: SafeArea(
         top: false,
         child: Scaffold(
+          drawer: NavBar1(),
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: Colors.teal),
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+          ),
           backgroundColor: Colors.white70,
           body: Column(
             children: <Widget>[

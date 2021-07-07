@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takaconnect/utils/navbar1.dart';
 import 'package:takaconnect/views/cardList.dart';
 
 class HomeCategories extends StatefulWidget {
@@ -14,6 +15,8 @@ class _HomeCategoriesState extends State<HomeCategories>
     with TickerProviderStateMixin {
   late AnimationController animationController;
   late TextEditingController searchController;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -35,8 +38,9 @@ class _HomeCategoriesState extends State<HomeCategories>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: NavBar1(),
       appBar: AppBar(
-        leading: Container(),
         title: Text('Taka Connect'),
         actions: [
           IconButton(

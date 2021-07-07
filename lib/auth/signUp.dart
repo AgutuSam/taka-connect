@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:takaconnect/auth/signIn.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:takaconnect/modules/categories.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
+import 'package:path/path.dart' as path;
 
 class SignupPage extends StatefulWidget {
+  SignupPage(this.state);
+  final String state;
   @override
   State<StatefulWidget> createState() {
     return _SignupPageState();
@@ -17,6 +23,7 @@ class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
   final name = TextEditingController();
   final phone = TextEditingController();
+  final email = TextEditingController();
   final gender = TextEditingController();
   final county = TextEditingController();
   final subcounty = TextEditingController();
@@ -26,18 +33,66 @@ class _SignupPageState extends State<SignupPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('users');
+  FirebaseStorage storage = FirebaseStorage.instance;
+
+  late String fileName = '';
+  late File imageFile;
 
   addFirestoreCollection() {}
 
   @override
   Widget build(BuildContext context) {
+    // Upload image to firebase
+    _upload() async {
+      try {
+        // Uploading the selected image with some custom meta data
+        await storage.ref(fileName).putFile(
+            imageFile,
+            SettableMetadata(customMetadata: {
+              'uploaded_by': 'taka connect',
+              'description': 'Some description...'
+            }));
+        return storage.ref(fileName).getDownloadURL();
+      } on FirebaseException catch (error) {
+        print(error);
+      }
+    }
+
+    // Select and image from the gallery or take a picture with the camera
+    Future<void> _select(String inputSource) async {
+      final picker = ImagePicker();
+      PickedFile? pickedImage;
+      try {
+        pickedImage = await picker.getImage(
+            source: inputSource == 'camera'
+                ? ImageSource.camera
+                : ImageSource.gallery,
+            maxWidth: 1920);
+
+        setState(() {
+          fileName = path.basename(pickedImage!.path);
+          imageFile = File(pickedImage.path);
+        });
+      } catch (err) {
+        print(err);
+      }
+    }
+
     void showSnackbar(String message) {
       // ignore: deprecated_member_use
       _scaffoldKey.currentState!.showSnackBar(SnackBar(content: Text(message)));
     }
 
-    void addUser(String name, String gender, String county, String subcounty,
-        String collectionPoint, String role) async {
+    void addUser(
+        String name,
+        String gender,
+        String county,
+        String subcounty,
+        String collectionPoint,
+        String role,
+        String email,
+        String image,
+        String imageName) async {
       var firebaseUser = FirebaseAuth.instance.currentUser;
       print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU');
       print(firebaseUser!.uid);
@@ -50,7 +105,10 @@ class _SignupPageState extends State<SignupPage> {
           "county": county,
           "subcounty": subcounty,
           "collectionPoint": collectionPoint,
-          "role": role
+          "role": role,
+          "email": email,
+          "image": image,
+          "imageName": imageName
         }).then((value) {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => HomeCategories()));
@@ -130,22 +188,40 @@ class _SignupPageState extends State<SignupPage> {
                                 fontSize: 28.0)),
                         Stepper(
                           type: StepperType.vertical,
-                          onStepContinue: _currentStep < 2
+                          onStepContinue: _currentStep < 3
                               ? () => setState(() => _currentStep += 1)
-                              : _currentStep < 3
+                              : _currentStep < 4
                                   ? () => name.text.isNotEmpty ||
                                           gender.text.isNotEmpty ||
                                           county.text.isNotEmpty ||
                                           subcounty.text.isNotEmpty ||
                                           collectionPoint.text.isNotEmpty ||
                                           role.text.isNotEmpty
-                                      ? addUser(
-                                          name.text,
-                                          gender.text,
-                                          county.text,
-                                          subcounty.text,
-                                          collectionPoint.text,
-                                          role.text)
+                                      ? fileName.isNotEmpty ||
+                                              fileName != '' ||
+                                              fileName != 'null'
+                                          ? _upload().then((value) => addUser(
+                                              name.text,
+                                              gender.text,
+                                              county.text,
+                                              subcounty.text,
+                                              collectionPoint.text,
+                                              role.text,
+                                              email.text.isNotEmpty
+                                                  ? email.text
+                                                  : '',
+                                              value!,
+                                              fileName))
+                                          : addUser(
+                                              name.text,
+                                              gender.text,
+                                              county.text,
+                                              subcounty.text,
+                                              collectionPoint.text,
+                                              role.text,
+                                              '',
+                                              '',
+                                              '')
                                       : showSnackbar('Inputs cannot be empty')
                                   : () {},
                           onStepCancel: _currentStep > 0
@@ -333,6 +409,73 @@ class _SignupPageState extends State<SignupPage> {
                                         contentPadding: EdgeInsets.symmetric(
                                             horizontal: 20.0, vertical: 16.0)),
                                   ),
+                                ),
+                              ]),
+                            ),
+                            Step(
+                              title: Text('Optional Details'),
+                              content: Column(children: <Widget>[
+                                Card(
+                                  margin: EdgeInsets.only(
+                                      left: 30, right: 30, top: 30),
+                                  elevation: 11,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(40))),
+                                  child: TextFormField(
+                                    controller: email,
+                                    decoration: InputDecoration(
+                                        prefixIcon: Icon(
+                                          Icons.email,
+                                          color: Colors.green.shade400,
+                                        ),
+                                        hintText: "Email",
+                                        hintStyle: TextStyle(
+                                            color: Colors.green.shade400),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide.none,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(40.0)),
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 20.0, vertical: 16.0)),
+                                  ),
+                                ),
+                                Column(
+                                  children: <Widget>[
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton.icon(
+                                            onPressed: () => _select('camera'),
+                                            icon: Icon(Icons.camera),
+                                            label: Text('camera')),
+                                        ElevatedButton.icon(
+                                            onPressed: () => _select('gallery'),
+                                            icon: Icon(Icons.library_add),
+                                            label: Text('Gallery')),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Text('File:'),
+                                        Flexible(
+                                          child: Text(
+                                              fileName.isNotEmpty ||
+                                                      fileName != "null" ||
+                                                      fileName != ''
+                                                  ? fileName
+                                                  : '...',
+                                              maxLines: 1,
+                                              softWrap: false,
+                                              overflow: TextOverflow.fade),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ]),
                             ),

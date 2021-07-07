@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takaconnect/utils/navbar1.dart';
 import 'package:takaconnect/views/cardGridTitle.dart';
 import 'package:takaconnect/views/cardList.dart';
 
@@ -12,14 +13,17 @@ class SubCategoryPage extends StatefulWidget {
 }
 
 class _SubCategoryPageState extends State<SubCategoryPage> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: NavBar1(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Center(child: Text(widget.categoryTitle)),
         iconTheme: IconThemeData(color: Colors.white),
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: EdgeInsets.only(top: 15.0),

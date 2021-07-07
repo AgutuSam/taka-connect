@@ -66,12 +66,22 @@ class _SigninPageState extends State<SigninPage> {
     //Callback for when the user has already previously signed in with this phone number on this device
     PhoneVerificationCompleted verificationCompleted =
         (PhoneAuthCredential phoneAuthCredential) async {
-      setState(() {
-        verifyLoading = !verifyLoading;
-      });
-      await _auth.signInWithCredential(phoneAuthCredential);
-      showSnackbar(
-          "Phone number automatically verified and user signed in: ${_auth.currentUser!.uid}");
+      // await _auth.signInWithCredential(phoneAuthCredential);
+      try {
+        final User? user =
+            (await _auth.signInWithCredential(phoneAuthCredential)).user;
+
+        showSnackbar(
+            "Phone number automatically verified and user signed in: ${user!.uid}");
+        var doc = await userColl.doc(_auth.currentUser!.uid).get();
+        doc.exists
+            ? Navigator.push(context,
+                MaterialPageRoute(builder: (context) => HomeCategories()))
+            : Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SignupPage('default')));
+      } catch (e) {
+        // showSnackbar("Failed to sign in: " + e.toString());
+      }
     };
 
     void verifyPhoneNumber() async {
@@ -83,12 +93,15 @@ class _SigninPageState extends State<SigninPage> {
             phoneNumber: _phoneNumberController.text.substring(0, 2) == '07'
                 ? '+254${_phoneNumberController.text.substring(1, _phoneNumberController.text.length)}'
                 : _phoneNumberController.text,
-            timeout: const Duration(seconds: 5),
+            timeout: const Duration(seconds: 60),
             verificationCompleted: verificationCompleted,
             verificationFailed: verificationFailed,
             codeSent: codeSent,
             codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
       } catch (e) {
+        setState(() {
+          verifyLoading = !verifyLoading;
+        });
         showSnackbar("Failed to Verify Phone Number: $e");
       }
     }
@@ -107,8 +120,8 @@ class _SigninPageState extends State<SigninPage> {
         doc.exists
             ? Navigator.push(context,
                 MaterialPageRoute(builder: (context) => HomeCategories()))
-            : Navigator.push(
-                context, MaterialPageRoute(builder: (context) => SignupPage()));
+            : Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SignupPage('default')));
       } catch (e) {
         showSnackbar("Failed to sign in: " + e.toString());
       }
@@ -344,20 +357,24 @@ class _SigninPageState extends State<SigninPage> {
             ],
           ),
           Visibility(
-              visible: verifyLoading,
-              child: Container(
-                  color: Colors.white60,
-                  child: Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.5,
-                      child: FlareActor(
-                        'assets/loading.flr',
-                        animation: 'loading',
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  )))
+            visible: verifyLoading,
+            child: Container(
+              color: Colors.white60,
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child:
+                      // CircularProgressIndicator(),
+                      FlareActor(
+                    'assets/loading.flr',
+                    animation: 'loading',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

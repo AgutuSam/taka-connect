@@ -4,6 +4,7 @@ import 'package:takaconnect/auxiliary/analytics.dart';
 import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
+import 'package:takaconnect/utils/navbar1.dart';
 import 'package:takaconnect/views/cardIconView.dart';
 import 'package:takaconnect/views/cardList.dart';
 import 'package:wave/config.dart';
@@ -21,6 +22,8 @@ class _CategoryHomePageState extends State<CategoryHomePage>
     with TickerProviderStateMixin {
   late AnimationController animationController;
   late TextEditingController searchController;
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -122,11 +125,13 @@ class _CategoryHomePageState extends State<CategoryHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: NavBar1(),
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Center(child: Text(widget.categoryTitle)),
         iconTheme: IconThemeData(color: Colors.white),
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: false,
       ),
       body: Stack(
         children: <Widget>[

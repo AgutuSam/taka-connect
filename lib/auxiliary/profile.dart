@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:takaconnect/utils/navbar1.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -43,8 +45,10 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: NavBar1(),
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        iconTheme: IconThemeData(color: Colors.white),
+        // automaticallyImplyLeading: false,
         title: Text('Profile'),
         centerTitle: true,
       ),
@@ -81,9 +85,12 @@ class _ProfileState extends State<Profile> {
                             alignment: Alignment(0.0, 2.5),
                             child: CircleAvatar(
                               // ignore: unnecessary_null_comparison
-                              backgroundImage:
-                                  Image.asset('assets/images/userImage.png')
-                                      .image,
+                              backgroundImage: user['image'] == null ||
+                                      user['image'] == ''
+                                  ? _auth?.photoURL == null
+                                      ? Image.asset('assets/origami.png').image
+                                      : NetworkImage('${_auth?.photoURL}')
+                                  : NetworkImage(user['image']),
                               radius: 60.0,
                             ),
                           ),
@@ -126,6 +133,72 @@ class _ProfileState extends State<Profile> {
                       SizedBox(
                         height: 10,
                       ),
+                      Card(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 20.0, vertical: 8.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "County",
+                                          style: TextStyle(
+                                              color: Colors.green.shade700,
+                                              fontSize: 22.0,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(
+                                          height: 7,
+                                        ),
+                                        Text(
+                                          user['county'] ?? 'Nairobi',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 22.0,
+                                              fontWeight: FontWeight.w300),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          "Sub-County",
+                                          style: TextStyle(
+                                              color: Colors.green.shade700,
+                                              fontSize: 22.0,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(
+                                          height: 7,
+                                        ),
+                                        Text(
+                                          user['subcounty'] ?? "Lang'ata",
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 22.0,
+                                              fontWeight: FontWeight.w300),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
@@ -154,7 +227,9 @@ class _ProfileState extends State<Profile> {
                               margin: EdgeInsets.all(6.0),
                               // ignore: deprecated_member_use
                               child: RaisedButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    await FirebaseAuth.instance.signOut();
+                                  },
                                   color: Colors.green.shade800,
 //               margin: EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
 
@@ -207,69 +282,6 @@ class _ProfileState extends State<Profile> {
                           );
                         }),
                       ),
-                      Card(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 8.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: <Widget>[
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Projects",
-                                          style: TextStyle(
-                                              color: Colors.green.shade700,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                        SizedBox(
-                                          height: 7,
-                                        ),
-                                        Text(
-                                          "15",
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w300),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Followers",
-                                          style: TextStyle(
-                                              color: Colors.green.shade700,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                        SizedBox(
-                                          height: 7,
-                                        ),
-                                        Text(
-                                          "2000",
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w300),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                       SizedBox(
                         height: 15,
                       ),
@@ -278,9 +290,20 @@ class _ProfileState extends State<Profile> {
                 ),
               );
             }
-            return Center(
-              child: Container(
-                child: CircularProgressIndicator(),
+            return Container(
+              color: Colors.white,
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child:
+                      //  CircularProgressIndicator(),
+                      FlareActor(
+                    'assets/loading.flr',
+                    animation: 'loading',
+                    fit: BoxFit.contain,
+                  ),
+                ),
               ),
             );
           }),

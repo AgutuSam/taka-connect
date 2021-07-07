@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:takaconnect/modules/categories.dart';
 
 import 'auth/signIn.dart';
 
@@ -32,8 +34,16 @@ class _SplashScreenState extends State<SplashScreen>
           ),
           TextButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SigninPage()));
+              // ignore: unnecessary_null_comparison
+                      FirebaseAuth.instance.currentUser != null
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeCategories()))
+                          : Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SigninPage()));
             },
             child: Column(
               children: <Widget>[
@@ -43,10 +53,16 @@ class _SplashScreenState extends State<SplashScreen>
                     animation: 'takaconnect',
                     fit: BoxFit.cover,
                     callback: (_) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SigninPage()));
+                      // ignore: unnecessary_null_comparison
+                      FirebaseAuth.instance.currentUser != null
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HomeCategories()))
+                          : Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SigninPage()));
                     },
                   ),
                 ),
