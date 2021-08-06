@@ -212,7 +212,11 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                               22.0,
                               Colors.blueGrey,
                               // AnalysisPage(),
-                              AnalysisPage(),
+                              AnalysisPage(
+                                  role: uzer['role'],
+                                  person: uzer['role'] == 'Collectors'
+                                      ? uzer['user']
+                                      : uzer['alien']),
                               'assets/background/pexels-mohamed-abdelgaffar-771742.jpg',
                               Icons.analytics_rounded,
                               'My Data'),

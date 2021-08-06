@@ -8,7 +8,10 @@ import 'package:takaconnect/views/cardList.dart';
 import 'package:intl/intl.dart';
 
 class AnalysisPage extends StatefulWidget {
-  const AnalysisPage({Key? key}) : super(key: key);
+  const AnalysisPage({Key? key, this.role, this.person}) : super(key: key);
+
+  final String? role;
+  final String? person;
 
   @override
   _AnalysisPageState createState() => _AnalysisPageState();
@@ -44,11 +47,15 @@ class _AnalysisPageState extends State<AnalysisPage> {
     return StreamBuilder<QuerySnapshot>(
         stream: trash == 'All'
             ? wasteDoc
+                .where(widget.role == 'Collectors' ? 'user ' : 'alien',
+                    isEqualTo: trash)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)
                 .orderBy('Date')
                 .snapshots()
             : wasteDoc
+                .where(widget.role == 'Collectors' ? 'user ' : 'alien',
+                    isEqualTo: trash)
                 .where('Waste Category', isEqualTo: trash)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)

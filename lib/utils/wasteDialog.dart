@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:like_button/like_button.dart';
 import 'package:takaconnect/auxiliary/messageThread.dart';
 
 class WasteDialog extends StatefulWidget {
@@ -15,6 +17,8 @@ class WasteDialog extends StatefulWidget {
 
 class _WasteDialogState extends State<WasteDialog> {
   final quantity = TextEditingController();
+
+  User? auser = FirebaseAuth.instance.currentUser;
 
   final CollectionReference wasteDoc =
       FirebaseFirestore.instance.collection('waste');
@@ -213,7 +217,114 @@ class _WasteDialogState extends State<WasteDialog> {
                               ],
                             ),
                           ),
-                        )
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            StreamBuilder<QuerySnapshot>(
+                                stream: userDoc
+                                    .doc(widget.wasteId)
+                                    .collection('rate')
+                                    .where('rator', isEqualTo: auser!.uid)
+                                    .snapshots(),
+                                builder: (BuildContext context, snapshot) {
+                                  List<DocumentSnapshot> data =
+                                      snapshot.data!.docs;
+                                  return RatingBar.builder(
+                                    initialRating: data.isEmpty ||
+                                            int.parse(data.first['rates']
+                                                    .toString()) ==
+                                                0
+                                        ? 0
+                                        : double.parse(
+                                            data.first['rates'].toString()),
+                                    minRating: 0,
+                                    maxRating: 5,
+                                    direction: Axis.horizontal,
+                                    allowHalfRating: true,
+                                    itemCount: 5,
+                                    itemPadding:
+                                        EdgeInsets.symmetric(horizontal: 4.0),
+                                    itemBuilder: (context, _) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    onRatingUpdate: (rating) {
+                                      userDoc
+                                          .doc(widget.wasteId)
+                                          .collection('rate')
+                                          .doc(auser!.uid)
+                                          .set({
+                                        'rates': rating,
+                                        'rator': auser!.uid
+                                      });
+                                      print(rating);
+                                    },
+                                  );
+                                }),
+                            StreamBuilder<QuerySnapshot>(
+                                stream: userDoc
+                                    .doc(widget.wasteId)
+                                    .collection('favorite')
+                                    .snapshots(),
+                                builder: (BuildContext context, snapshot) {
+                                  List<DocumentSnapshot> data =
+                                      snapshot.data!.docs;
+                                  return LikeButton(
+                                    // size: buttonSize,
+                                    circleColor: CircleColor(
+                                        start: Color(0xff00ddff),
+                                        end: Color(0xff0099cc)),
+                                    bubblesColor: BubblesColor(
+                                      dotPrimaryColor: Color(0xff33b5e5),
+                                      dotSecondaryColor: Color(0xff0099cc),
+                                    ),
+                                    likeBuilder: (bool isLiked) {
+                                      return Icon(
+                                        Icons.favorite,
+                                        color: isLiked
+                                            ? Colors.deepPurpleAccent
+                                            : Colors.grey,
+                                        // size: buttonSize,
+                                      );
+                                    },
+                                    likeCount: data.length,
+                                    countBuilder: (int? count, bool isLiked,
+                                        String text) {
+                                      var color = isLiked
+                                          ? Colors.deepPurpleAccent
+                                          : Colors.grey;
+                                      Widget result;
+                                      if (data.length == 0 || data.isEmpty) {
+                                        result = Text(
+                                          "Favorite",
+                                          style: TextStyle(color: color),
+                                        );
+                                      } else
+                                        result = Text(
+                                          text,
+                                          style: TextStyle(color: color),
+                                        );
+                                      return result;
+                                    },
+                                    onTap: (state) async {
+                                      state
+                                          ? userDoc
+                                              .doc(widget.wasteId)
+                                              .collection('favorite')
+                                              .doc(auser!.uid)
+                                              .set({})
+                                          : userDoc
+                                              .doc(widget.wasteId)
+                                              .collection('favorite')
+                                              .doc(auser!.uid)
+                                              .delete();
+                                      return state;
+                                    },
+                                  );
+                                }),
+                          ],
+                        ),
                       ],
                     ),
                   ),

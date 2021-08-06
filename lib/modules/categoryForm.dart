@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:takaconnect/modules/availability.dart';
 import 'package:takaconnect/utils/input.dart';
 import 'package:takaconnect/views/cardList.dart';
@@ -34,53 +35,58 @@ class _CategoryFormState extends State<CategoryForm> {
   }
 
 // ValueChanged<Color> callback
-void changeColor(Color color) {
-  setState(() => pickerColor = color);
-}
+  void changeColor(Color color) {
+    setState(() {
+      dropDownMap['Characteristics']['Color'] = pickerColor = color;
+    });
+  }
+
   // Color picker Dialog
-  formColoPicker(){
-  showDialog(
-  context: context,
-  child: AlertDialog(
-    title: const Text('Pick a color!'),
-    content: SingleChildScrollView(
-      child: ColorPicker(
-        pickerColor: pickerColor,
-        onColorChanged: changeColor,
-        showLabel: true,
-        pickerAreaHeightPercent: 0.8,
-      ),
-      // Use Material color picker:
-      //
-      // child: MaterialPicker(
-      //   pickerColor: pickerColor,
-      //   onColorChanged: changeColor,
-      //   showLabel: true, // only on portrait mode
-      // ),
-      //
-      // Use Block color picker:
-      //
-      // child: BlockPicker(
-      //   pickerColor: currentColor,
-      //   onColorChanged: changeColor,
-      // ),
-      //
-      // child: MultipleChoiceBlockPicker(
-      //   pickerColors: currentColors,
-      //   onColorsChanged: changeColors,
-      // ),
-    ),
-    actions: <Widget>[
-      FlatButton(
-        child: const Text('Got it'),
-        onPressed: () {
-          setState(() => currentColor = pickerColor);
-          Navigator.of(context).pop();
-        },
-      ),
-    ],
-  ),
-);
+  formColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pick a color!'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: pickerColor,
+              onColorChanged: changeColor,
+              showLabel: true,
+              pickerAreaHeightPercent: 0.8,
+            ),
+            // Use Material color picker:
+            //
+            // child: MaterialPicker(
+            //   pickerColor: pickerColor,
+            //   onColorChanged: changeColor,
+            //   showLabel: true, // only on portrait mode
+            // ),
+            //
+            // Use Block color picker:
+            //
+            // child: BlockPicker(
+            //   pickerColor: currentColor,
+            //   onColorChanged: changeColor,
+            // ),
+            //
+            // child: MultipleChoiceBlockPicker(
+            //   pickerColors: currentColors,
+            //   onColorsChanged: changeColors,
+            // ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Got it'),
+              onPressed: () {
+                setState(() => currentColor = pickerColor);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   //submit methods....
@@ -255,22 +261,32 @@ void changeColor(Color color) {
                             // // characteristics
 
                             Column(children: <Widget>[
-                              RaisedButton(
-                  elevation: 3.0,
-                  onPressed: () => formColorPicker,
+                              InkWell(
+                                onTap: () => formColorPicker,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text('Color'),
+                                    Expanded(
+                                      child: Container(
+                                        color: pickerColor,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
-                             InputCard('Size', (v) {
-                              setState(() {
-                                dropDownMap['Characteristics']['Size'] = v;
-                                print('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC');
-                                print(v);
-                                print(dropDownMap);
-                                print(quality.text);
-                                print('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC');
-                              });
-                              return v;
-                            },
-                                inputController: size),
+                              InputCard('Size', (v) {
+                                setState(() {
+                                  dropDownMap['Characteristics']['Size'] = v;
+                                  print('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC');
+                                  print(v);
+                                  print(dropDownMap);
+                                  print(quality.text);
+                                  print('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC');
+                                });
+                                return v;
+                              }, inputController: size),
                             ]),
                             // InputCard('Characteristics', (v) {
                             //   setState(() {
@@ -323,7 +339,13 @@ void changeColor(Color color) {
                           style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.resolveWith(getColor)),
-                          onPressed: _submitForm,
+                          onPressed: () {
+                            setState(() {
+                              dropDownMap['Characteristics']['Color'] =
+                                  pickerColor;
+                            });
+                            _submitForm();
+                          },
                           child: Text(
                             widget.category.capitalize() == 'Collectors'
                                 ? 'Submit'
