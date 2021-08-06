@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:takaconnect/auth/signIn.dart';
 import 'package:takaconnect/auth/signUp.dart';
+import 'package:takaconnect/auxiliary/contact.dart';
 import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
+import 'package:takaconnect/auxiliary/terms_and_conditions.dart';
 import 'package:takaconnect/modules/categories.dart';
+import 'package:takaconnect/modules/categoryHome.dart';
 import 'package:takaconnect/utils/oval-right-clipper.dart';
 
 class NavBar1 extends StatefulWidget {
@@ -108,25 +111,18 @@ class _NavBar1State extends State<NavBar1> {
                           return Column(
                             children: <Widget>[
                               Container(
-                                height: 90,
-                                alignment: Alignment.center,
+                                width: 90.0,
+                                height: 90.0,
                                 decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(colors: [
-                                      Colors.blueGrey,
-                                      Colors.blue
-                                    ])),
-                                child: CircleAvatar(
-                                  radius: 44.5,
-                                  // ignore: unnecessary_null_comparison
-                                  backgroundImage: user['image'] == null ||
-                                          user['image'] == ''
-                                      ? Image.asset('assets/origami.png').image
-                                      : NetworkImage(user['image']),
-
-                                  // : 'https://firebasestorage.googleapis.com/v0/b/taka-connect.appspot.com/o/origami.png?alt=media&token=d0966af2-abf7-4111-a737-3cb30c1d30b1'),
-                                  // Image.asset('assets/origami.png')
-                                  //     .image),
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: user['image'] == ''
+                                        ? Image.asset(
+                                                'assets/appIcons/ic_launcher.png')
+                                            .image
+                                        : NetworkImage(user['image']),
+                                  ),
                                 ),
                               ),
                               SizedBox(height: 5.0),
@@ -161,13 +157,16 @@ class _NavBar1State extends State<NavBar1> {
                         );
                       }),
                   SizedBox(height: 30.0),
-                  _buildRow(Icons.home, 'Home', context, HomeCategories()),
+                  _buildRow(Icons.home, 'Home', context, CategoryHomePage()),
                   _buildDivider(),
                   _buildRow(Icons.person, 'Profile', context, Profile()),
                   _buildDivider(),
                   _buildRow(Icons.info_outline, 'Help', context, HelpScreen()),
                   _buildDivider(),
-                  _buildRow(Icons.star, 'Feeds', context, FeedbackScreen()),
+                  _buildRow(Icons.report, 'Report a problem', context,
+                      FeedbackScreen()),
+                  _buildDivider(),
+                  _buildRow(Icons.phone, 'Contact Us', context, Contact()),
                   _buildDivider(),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: .2),

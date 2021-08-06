@@ -39,8 +39,7 @@ class CardListView extends StatelessWidget {
                 onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (contezt) => CategoryHomePage(
-                            teamMember.name, teamMember.title))),
+                        builder: (contezt) => CategoryHomePage())),
                 child: Card(
                   elevation: 12.0,
                   // margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
@@ -51,8 +50,7 @@ class CardListView extends StatelessWidget {
                           onTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (contezt) => CategoryHomePage(
-                                      teamMember.name, teamMember.title))),
+                                  builder: (contezt) => CategoryHomePage())),
                           child: Center(
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -155,18 +153,18 @@ class Team {
       title: 'Microbiologist',
       org: '...',
     ),
-    Team(
-      imagePath: 'assets/upload.png',
-      name: 'Upload',
-      title: 'Programmer',
-      org: '...',
-    ),
+    // Team(
+    //   imagePath: 'assets/upload.png',
+    //   name: 'Upload',
+    //   title: 'Programmer',
+    //   org: '...',
+    // ),
   ];
 
   static List sorters = [
     'Plastic',
     'Metal',
-    'E-waste',
+    'E_waste',
     'Glass',
     'Rubber',
     'Paper',
@@ -176,7 +174,7 @@ class Team {
   static List buyers = [
     'Plastic',
     'Metal',
-    'E-waste',
+    'E_waste',
     'Glass',
     'Rubber',
     'Paper',
@@ -186,7 +184,7 @@ class Team {
   static List recyclers = [
     'Plastic',
     'Metal',
-    'E-waste',
+    'E_waste',
     'Glass',
     'Rubber',
     'Paper',
@@ -196,7 +194,18 @@ class Team {
   static List collectors = [
     'Plastic',
     'Metal',
-    'E-waste',
+    'E_waste',
+    'Glass',
+    'Rubber',
+    'Paper',
+    'Organic',
+    'Foam',
+  ];
+  static List analysis = [
+    'All',
+    'Plastic',
+    'Metal',
+    'E_waste',
     'Glass',
     'Rubber',
     'Paper',
@@ -208,5 +217,62 @@ class Team {
     'PP',
     'HDPE',
     'PVC',
+  ];
+
+  static List glass = ['Jars', 'Bottles', 'Glassware'];
+  static List paper = ['Hard', 'Soft'];
+  static List metal = [
+    'Aluminium Cans',
+    'Iron Sheets',
+    'Steel',
+    'Copper',
+    'Bross',
+    'Bronze',
+    'Cobalt'
+  ];
+  static List rubber = ['Shoe/Flip Flops', 'Tyre'];
+  static List foam = ['Matress', 'Styrofoam', 'Foam'];
+  static List e_waste = [
+    'Cooling Equipment',
+    'Telecommunication Equipment',
+    'Consumer Electronic Devices'
+  ];
+  static List organic = ['Food Remnants'];
+}
+
+class Waste {
+  Waste({
+    this.name = '',
+    required this.subs,
+  });
+
+  String name;
+  List subs;
+  static List wasteList = <Waste>[
+    Waste(name: 'Plastic', subs: [
+      'PET',
+      'PP',
+      'HDPE',
+      'PVC',
+    ]),
+    Waste(name: 'Metal', subs: [
+      'Aluminium Cans',
+      'Iron Sheets',
+      'Steel',
+      'Copper',
+      'Bross',
+      'Bronze',
+      'Cobalt'
+    ]),
+    Waste(name: 'E_waste', subs: [
+      'Cooling Equipment',
+      'Telecommunication Equipment',
+      'Consumer Electronic Devices'
+    ]),
+    Waste(name: 'Glass', subs: ['Jars', 'Bottles', 'Glassware']),
+    Waste(name: 'Rubber', subs: ['Shoe/Flip Flops', 'Tyre']),
+    Waste(name: 'Paper', subs: ['Hard', 'Soft']),
+    Waste(name: 'Organic', subs: ['Food Remnants']),
+    Waste(name: 'Foam', subs: ['Matress', 'Styrofoam', 'Foam']),
   ];
 }

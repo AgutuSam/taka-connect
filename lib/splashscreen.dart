@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:takaconnect/auth/signUp.dart';
+import 'package:takaconnect/auxiliary/terms_and_conditions.dart';
 import 'package:takaconnect/modules/categories.dart';
+import 'package:takaconnect/modules/categoryHome.dart';
 
 import 'auth/signIn.dart';
 
@@ -16,6 +20,10 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final CollectionReference userColl =
+      FirebaseFirestore.instance.collection('users');
+
   @override
   void initState() {
     super.initState();
@@ -35,15 +43,24 @@ class _SplashScreenState extends State<SplashScreen>
           TextButton(
             onPressed: () {
               // ignore: unnecessary_null_comparison
-                      FirebaseAuth.instance.currentUser != null
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeCategories()))
-                          : Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SigninPage()));
+              FirebaseAuth.instance.currentUser != null
+                  ? userColl
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .get()
+                      .then(
+                        (doc) => doc.exists
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CategoryHomePage()))
+                            : Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        TermsAndConditions())),
+                      )
+                  : Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SigninPage()));
             },
             child: Column(
               children: <Widget>[
@@ -55,10 +72,22 @@ class _SplashScreenState extends State<SplashScreen>
                     callback: (_) {
                       // ignore: unnecessary_null_comparison
                       FirebaseAuth.instance.currentUser != null
-                          ? Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeCategories()))
+                          ? userColl
+                              .doc(FirebaseAuth.instance.currentUser!.uid)
+                              .get()
+                              .then(
+                                (doc) => doc.exists
+                                    ? Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                CategoryHomePage()))
+                                    : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                TermsAndConditions())),
+                              )
                           : Navigator.push(
                               context,
                               MaterialPageRoute(

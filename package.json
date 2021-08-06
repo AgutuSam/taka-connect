@@ -1,0 +1,29 @@
+{
+  "name": "counties-subcounties-kenya",
+  "version": "1.0.0",
+  "description": "counties and their subcounties in kenya",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgutuSam/taka-connect.git"
+  },
+  "keywords": [
+    "counties"
+  ],
+  "author": "AgutuSam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AgutuSam/taka-connect/issues"
+  },
+  "homepage": "https://github.com/AgutuSam/taka-connect#readme",
+  "dependencies": {
+    "firestore-export-import": "^0.15.0"
+  },
+  "devDependencies": {}
+}

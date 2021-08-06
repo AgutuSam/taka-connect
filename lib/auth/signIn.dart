@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
-import 'package:sms_autofill/sms_autofill.dart';
-import 'package:takaconnect/auth/signUp.dart';
+import 'package:takaconnect/auxiliary/terms_and_conditions.dart';
 import 'package:takaconnect/modules/categories.dart';
+import 'package:takaconnect/modules/categoryHome.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
@@ -76,9 +76,9 @@ class _SigninPageState extends State<SigninPage> {
         var doc = await userColl.doc(_auth.currentUser!.uid).get();
         doc.exists
             ? Navigator.push(context,
-                MaterialPageRoute(builder: (context) => HomeCategories()))
+                MaterialPageRoute(builder: (context) => CategoryHomePage()))
             : Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SignupPage('default')));
+                MaterialPageRoute(builder: (context) => TermsAndConditions()));
       } catch (e) {
         // showSnackbar("Failed to sign in: " + e.toString());
       }
@@ -119,9 +119,9 @@ class _SigninPageState extends State<SigninPage> {
         var doc = await userColl.doc(_auth.currentUser!.uid).get();
         doc.exists
             ? Navigator.push(context,
-                MaterialPageRoute(builder: (context) => HomeCategories()))
+                MaterialPageRoute(builder: (context) => CategoryHomePage()))
             : Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SignupPage('default')));
+                MaterialPageRoute(builder: (context) => TermsAndConditions()));
       } catch (e) {
         showSnackbar("Failed to sign in: " + e.toString());
       }
@@ -166,20 +166,16 @@ class _SigninPageState extends State<SigninPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Center(
-                        child: Card(
-                          color: Colors.transparent,
-                          margin: EdgeInsets.only(
-                              left: 30, right: 30, top: 20, bottom: 20),
-                          elevation: 11,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(70))),
-                          child: Image(
-                            height: 150,
-                            width: 150,
-                            image:
-                                Image.asset('assets/appIcons/ic_launcher.png')
-                                    .image,
+                        child: Container(
+                          width: 90.0,
+                          height: 90.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                fit: BoxFit.fill,
+                                image: Image.asset(
+                                        'assets/appIcons/ic_launcher.png')
+                                    .image),
                           ),
                         ),
                       ),

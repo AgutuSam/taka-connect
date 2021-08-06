@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:takaconnect/auth/signIn.dart';
 import 'package:takaconnect/auxiliary/analytics.dart';
 import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
+import 'package:takaconnect/auxiliary/messageProfiles.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
 import 'package:takaconnect/utils/navbar1.dart';
 import 'package:takaconnect/views/cardIconView.dart';
@@ -11,9 +14,6 @@ import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class CategoryHomePage extends StatefulWidget {
-  CategoryHomePage(this.categoryTitle, this.wasteTitle);
-  final String categoryTitle;
-  final String wasteTitle;
   @override
   State<StatefulWidget> createState() => _CategoryHomePageState();
 }
@@ -24,9 +24,20 @@ class _CategoryHomePageState extends State<CategoryHomePage>
   late TextEditingController searchController;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  var firebaseUser = FirebaseAuth.instance.currentUser;
+  final CollectionReference userDoc =
+      FirebaseFirestore.instance.collection('users');
+  Map uzer = {};
+
+  Future getUser() async {
+    await userDoc.doc(firebaseUser!.uid).get().then((value) => setState(() {
+          uzer = value.data() as Map<String, dynamic>;
+        }));
+  }
 
   @override
   void initState() {
+    getUser();
     animationController = AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     super.initState();
@@ -129,7 +140,7 @@ class _CategoryHomePageState extends State<CategoryHomePage>
       drawer: NavBar1(),
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Center(child: Text(widget.categoryTitle)),
+        title: Center(child: Text(uzer['role'] ?? 'TakaConnect')),
         iconTheme: IconThemeData(color: Colors.white),
         // automaticallyImplyLeading: false,
       ),
@@ -146,8 +157,8 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                     [Colors.green.shade300, Colors.green.shade500],
                   ],
                   durations: [19440, 10800],
-                  heightPercentages: [0.29, 0.32],
-                  blur: MaskFilter.blur(BlurStyle.solid, 10),
+                  heightPercentages: [0.24, 0.27],
+                  blur: MaskFilter.blur(BlurStyle.solid, 12),
                   gradientBegin: Alignment.bottomLeft,
                   gradientEnd: Alignment.topRight,
                 ),
@@ -168,19 +179,11 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height * .32,
-                      width: MediaQuery.of(context).size.width,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(
-                            top: 0, bottom: 0, right: 16, left: 16),
-                        itemCount: Team.category.length,
-                        scrollDirection: Axis.vertical,
-                        itemBuilder: (BuildContext context, int index) {
-                          return CardIconView(
-                            teamMember: Team.category[index],
-                            title: widget.wasteTitle,
-                          );
-                        },
+                      height: MediaQuery.of(context).size.height * .27,
+                      width: MediaQuery.of(context).size.width * 0.95,
+                      child: CardIconView(
+                        teamMember: Team.category[0],
+                        title: uzer['role'],
                       ),
                     ),
                     // SizedBox(
@@ -191,8 +194,8 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                     //   ),
                     // ),
                     Container(
-                      padding: EdgeInsets.only(top: 35, bottom: 2),
-                      height: MediaQuery.of(context).size.height * .54,
+                      padding: EdgeInsets.only(top: 75, bottom: 2),
+                      height: MediaQuery.of(context).size.height * .6,
                       width: MediaQuery.of(context).size.width,
                       child: GridView.count(
                         crossAxisCount: 2,
@@ -209,20 +212,20 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                               22.0,
                               Colors.blueGrey,
                               // AnalysisPage(),
-                              FeedbackScreen(),
+                              AnalysisPage(),
                               'assets/background/pexels-mohamed-abdelgaffar-771742.jpg',
                               Icons.analytics_rounded,
-                              'Analytics'),
+                              'My Data'),
                           category(
                               22.0,
                               0.0,
                               22.0,
                               0.0,
-                              Colors.orange,
-                              Profile(),
-                              'assets/background/fabio-oyXis2kALVg-unsplash.jpg',
-                              Icons.person,
-                              'Profile'),
+                              Colors.teal,
+                              MessageProfiles(role: uzer['role']),
+                              'assets/background/pexels-aradhana-2697288.jpg',
+                              Icons.message,
+                              'Messaging'),
                           category(
                               0.0,
                               22.0,
@@ -238,11 +241,11 @@ class _CategoryHomePageState extends State<CategoryHomePage>
                               0.0,
                               22.0,
                               22.0,
-                              Colors.teal,
-                              SigninPage(),
-                              'assets/background/pexels-aradhana-2697288.jpg',
-                              Icons.logout,
-                              'Logout'),
+                              Colors.orange,
+                              Profile(),
+                              'assets/background/fabio-oyXis2kALVg-unsplash.jpg',
+                              Icons.person,
+                              'Profile'),
                         ],
                       ),
                     ),

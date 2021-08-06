@@ -41,7 +41,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   Container(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Your FeedBack',
+                      'Report a problem',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -140,8 +140,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
                 cursorColor: Colors.blue,
                 decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Enter your feedback...'),
+                    border: InputBorder.none, hintText: 'Report...'),
               ),
             ),
           ),

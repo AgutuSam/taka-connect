@@ -1,10 +1,15 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:takaconnect/utils/navbar1.dart';
+import 'package:path/path.dart' as path;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_core/firebase_core.dart' as firebase_core;
 
 class Profile extends StatefulWidget {
   @override
@@ -28,17 +33,114 @@ class _ProfileState extends State<Profile> {
   late String userEmail;
   late String userPhoto;
   late String userNumber;
+  late bool profilePic;
 
+  late String fileName = '';
+  late File imageFile;
+
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
   var _auth = FirebaseAuth.instance.currentUser;
 
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('users');
   late Map user;
 
+  Color? getColor(Set<MaterialState> states) {
+    const Set<MaterialState> interactiveStates = <MaterialState>{
+      MaterialState.pressed,
+      MaterialState.hovered,
+      MaterialState.focused,
+    };
+    if (states.any(interactiveStates.contains)) {
+      return Colors.red;
+    }
+    return Colors.orange[600];
+  }
+
   @override
   void initState() {
     // TODO: implement initState
+    profilePic = false;
     super.initState();
+  }
+
+  // add user image
+  _addUserImage(String image) async {
+    print('JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ');
+    await userColl.doc(_auth!.uid).update({
+      'image': await storage.ref(fileName).getDownloadURL(),
+      'imageName': fileName
+    });
+    print('JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ');
+  }
+
+  Future<void> uploadFile() async {
+    try {
+      print('DDDDDDDDDDDDDDDDDDDDDDDDATA!');
+      print(fileName);
+      print(imageFile);
+      print('DDDDDDDDDDDDDDDDDDDDDDDDATA!');
+      // Uploading the selected image with some
+      print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+      await firebase_storage.FirebaseStorage.instance
+          .ref('images/$fileName')
+          .putFile(imageFile);
+      print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+    } on firebase_core.FirebaseException catch (e) {
+      // e.g, e.code == 'canceled'
+      print(e.message.toString().toUpperCase());
+    }
+  }
+
+  // Upload image to firebase
+  Future upload() async {
+    try {
+      print('DDDDDDDDDDDDDDDDDDDDDDDDATA!');
+      print(fileName);
+      print(imageFile);
+      print('DDDDDDDDDDDDDDDDDDDDDDDDATA!');
+
+      // Uploading the selected image with some custom meta data
+      await storage.ref(fileName).putFile(imageFile);
+      print('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+      storage.ref(fileName).putFile(imageFile);
+      print(storage.toString());
+      print(storage.ref(fileName).getDownloadURL());
+      print('JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ');
+      await userColl.doc(_auth!.uid).update({
+        'image': await storage.ref(fileName).getDownloadURL(),
+        'imageName': fileName
+      });
+      print('JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ');
+      setState(() {});
+      return storage
+          .ref(fileName)
+          .getDownloadURL()
+          .then((value) => _addUserImage(value));
+    } on FirebaseException catch (error) {
+      print(error);
+    }
+  }
+
+  // Select and image from the gallery or take a picture with the camera
+  Future<void> _select(String inputSource) async {
+    final picker = ImagePicker();
+    PickedFile? pickedImage;
+    try {
+      pickedImage = await picker.getImage(
+          source: inputSource == 'camera'
+              ? ImageSource.camera
+              : ImageSource.gallery,
+          maxWidth: 1920);
+
+      setState(() {
+        fileName = path.basename(pickedImage!.path);
+        imageFile = File(pickedImage.path);
+      });
+    } catch (err) {
+      print(err);
+    }
   }
 
   @override
@@ -80,18 +182,23 @@ class _ProfileState extends State<Profile> {
                                 fit: BoxFit.cover)),
                         child: Container(
                           width: double.infinity,
-                          height: 200,
+                          height: 240,
                           child: Container(
                             alignment: Alignment(0.0, 2.5),
-                            child: CircleAvatar(
-                              // ignore: unnecessary_null_comparison
-                              backgroundImage: user['image'] == null ||
-                                      user['image'] == ''
-                                  ? _auth?.photoURL == null
-                                      ? Image.asset('assets/origami.png').image
-                                      : NetworkImage('${_auth?.photoURL}')
-                                  : NetworkImage(user['image']),
-                              radius: 60.0,
+                            child: Container(
+                              width: 150.0,
+                              height: 150.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: user['image'] == ''
+                                      ? Image.asset(
+                                              'assets/appIcons/ic_launcher.png')
+                                          .image
+                                      : NetworkImage(user['image']),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -123,7 +230,7 @@ class _ProfileState extends State<Profile> {
                         height: 10,
                       ),
                       Text(
-                        user['county'] ?? 'doe@example.com',
+                        user['role'] ?? 'Collector',
                         style: TextStyle(
                             fontSize: 15.0,
                             color: Colors.black45,
@@ -199,91 +306,78 @@ class _ProfileState extends State<Profile> {
                       SizedBox(
                         height: 10,
                       ),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      Visibility(
+                        visible: false,
+                        // visible: !profilePic,
+                        child: ElevatedButton.icon(
+                          onPressed: () => setState(() {
+                            profilePic = !profilePic;
+                          }),
+                          icon: Icon(Icons.person),
+                          label: Text('Display Image'),
+                        ),
+                      ),
+                      Visibility(
+                        visible: false,
+                        // visible: profilePic,
+                        child: Column(
                           children: <Widget>[
-                            Container(
-                              margin: EdgeInsets.all(6.0),
-                              // ignore: deprecated_member_use
-                              child: RaisedButton(
-                                  onPressed: () {},
-                                  color: Colors.green.shade800,
-//               margin: EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
-
-                                  elevation: 4.0,
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 30),
-                                      child: Text(
-                                        "Message",
-                                        style: TextStyle(
-                                          letterSpacing: 2.0,
-                                          fontWeight: FontWeight.w300,
-                                          color: Colors.white,
-                                        ),
-                                      ))),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                ElevatedButton.icon(
+                                    onPressed: () => _select('camera'),
+                                    icon: Icon(Icons.camera),
+                                    label: Text('camera')),
+                                ElevatedButton.icon(
+                                    onPressed: () => _select('gallery'),
+                                    icon: Icon(Icons.library_add),
+                                    label: Text('Gallery')),
+                              ],
                             ),
-                            Container(
-                              margin: EdgeInsets.all(6.0),
-                              // ignore: deprecated_member_use
-                              child: RaisedButton(
-                                  onPressed: () async {
-                                    await FirebaseAuth.instance.signOut();
-                                  },
-                                  color: Colors.green.shade800,
-//               margin: EdgeInsets.symmetric(horizontal: 20.0,vertical: 8.0),
-
-                                  elevation: 4.0,
-                                  child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 30),
-                                      child: Text(
-                                        "Call",
-                                        style: TextStyle(
-                                          letterSpacing: 2.0,
-                                          fontWeight: FontWeight.w300,
-                                          color: Colors.white,
-                                        ),
-                                      ))),
-                            ),
-                          ]),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Wrap(
-                        children:
-                            List<Widget>.generate(skills.length, (int index) {
-                          return Container(
-                            margin: EdgeInsets.all(6.0),
-                            child: Chip(
-                              elevation: 6.0,
-                              padding: EdgeInsets.all(10.0),
-                              shape: StadiumBorder(
-                                side: BorderSide(
-                                    color: Color.fromARGB(
-                                      rand.nextInt(150),
-                                      rand.nextInt(255),
-                                      rand.nextInt(255),
-                                      rand.nextInt(255),
+                            Column(
+                              children: <Widget>[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Text('File:'),
+                                    Flexible(
+                                      child: Text(fileName,
+                                          maxLines: 1,
+                                          softWrap: false,
+                                          overflow: TextOverflow.fade),
                                     ),
-                                    style: BorderStyle.solid,
-                                    width: 1.2),
-                              ),
-                              backgroundColor: Colors.white,
-                              label: Text(
-                                skills[index].title,
-                                style: TextStyle(
-                                    fontSize: 18.0,
-                                    color: Colors.black45,
-                                    letterSpacing: 2.0,
-                                    fontWeight: FontWeight.w300),
-                              ),
+                                  ],
+                                ),
+                                Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                          onPressed: () {
+                                            print('OOOOOOOOOOOOOOOOOOOOOOOOO');
+                                            uploadFile();
+                                            print('OOOOOOOOOOOOOOOOOOOOOOOOO');
+                                          },
+                                          child: Text('Upload')),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            profilePic = !profilePic;
+                                          });
+                                        },
+                                        child: Text('Cancel'),
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty
+                                                    .resolveWith(getColor)),
+                                      )
+                                    ]),
+                              ],
                             ),
-                          );
-                        }),
-                      ),
-                      SizedBox(
-                        height: 15,
+                          ],
+                        ),
                       ),
                     ],
                   ),
