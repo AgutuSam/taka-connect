@@ -217,6 +217,9 @@ class _CategoryFormState extends State<CategoryForm> {
                                 children: <Widget>[
                                   ElevatedButton(
                                     onPressed: () {
+                                       setState(() {
+      verifyLoading = !verifyLoading;
+    });
                                       Navigator.pop(context);
                                     },
                                     child: Text('Add'),
