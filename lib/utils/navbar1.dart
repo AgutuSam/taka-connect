@@ -117,11 +117,9 @@ class _NavBar1State extends State<NavBar1> {
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
                                     fit: BoxFit.fill,
-                                    image: user['image'] == ''
-                                        ? Image.asset(
-                                                'assets/appIcons/ic_launcher.png')
-                                            .image
-                                        : NetworkImage(user['image']),
+                                    image: Image.asset(
+                                            'assets/appIcons/ic_launcher.png')
+                                        .image,
                                   ),
                                 ),
                               ),

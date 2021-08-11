@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:takaconnect/utils/alert.dart';
@@ -26,6 +27,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   DateFormat dateFormat = DateFormat('d/M/y');
 
+  var auth = FirebaseAuth.instance.currentUser;
+
   final CollectionReference wasteDoc =
       FirebaseFirestore.instance.collection('waste');
 
@@ -47,15 +50,15 @@ class _AnalysisPageState extends State<AnalysisPage> {
     return StreamBuilder<QuerySnapshot>(
         stream: trash == 'All'
             ? wasteDoc
-                .where(widget.role == 'Collectors' ? 'user ' : 'alien',
-                    isEqualTo: trash)
+                .where(widget.role == 'Collectors' ? 'user' : 'alien',
+                    isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)
                 .orderBy('Date')
                 .snapshots()
             : wasteDoc
-                .where(widget.role == 'Collectors' ? 'user ' : 'alien',
-                    isEqualTo: trash)
+                .where(widget.role == 'Collectors' ? 'user' : 'alien',
+                    isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                 .where('Waste Category', isEqualTo: trash)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)

@@ -55,7 +55,7 @@ class _InputCardState extends State<InputCard> {
                         Padding(
                           padding: const EdgeInsets.only(right: 12),
                           child: Icon(
-                            Icons.money,
+                            widget.isIcon,
                             color: Color(0xFF0000E2),
                           ),
                         ),

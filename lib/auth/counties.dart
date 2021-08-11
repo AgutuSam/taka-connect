@@ -13,7 +13,7 @@ class Counties {
   static List<Counties> countyList = <Counties>[
     Counties(name: "default", subCounties: [""]),
     Counties(name: "Kilifi", capital: "Kilifi", code: '3', subCounties: [
-      "Genze",
+      "Ganze",
       "Kaloleni",
       "Kilifi North",
       "Kilifi South",

@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:takaconnect/auth/signIn.dart';
+import 'package:takaconnect/auth/signIn.dart';
+import 'package:takaconnect/utils/alert.dart';
 import 'package:takaconnect/utils/navbar1.dart';
 import 'package:path/path.dart' as path;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -143,6 +146,22 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  deleteAcc() async {
+    BeautifulAlertDialog('This will delete all user data and exit the app!');
+    await userColl.doc(_auth!.uid).delete();
+    exit(0);
+  }
+
+  void _signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut().then((value) => Navigator.push(
+          context, MaterialPageRoute(builder: (context) => SigninPage())));
+    } catch (e) {
+      BeautifulAlertDialog('${e.toString()}');
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,6 +172,40 @@ class _ProfileState extends State<Profile> {
         // automaticallyImplyLeading: false,
         title: Text('Profile'),
         centerTitle: true,
+        actions: <Widget>[
+          PopupMenuButton(
+            //don't specify icon if you want 3 dot menu
+            color: Colors.blue,
+
+            itemBuilder: (context) => [
+              PopupMenuItem<int>(
+                value: 0,
+                child: Text(
+                  "Delete Account",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(
+                      width: 7,
+                    ),
+                    Text("Logout")
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (item) {
+              item == 0 ? deleteAcc() : _signOut();
+            },
+          ),
+        ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
           future: userColl.doc(_auth!.uid).get(),
@@ -169,6 +222,10 @@ class _ProfileState extends State<Profile> {
             if (snapshot.connectionState == ConnectionState.done) {
               Map<String, dynamic> user =
                   snapshot.data!.data() as Map<String, dynamic>;
+              List cees =
+                  user['county'].entries.map((res) => res.value).toList();
+              List subcees =
+                  user['subcounty'].entries.map((res) => res.value).toList();
               return SingleChildScrollView(
                 child: SafeArea(
                   child: Column(
@@ -242,66 +299,126 @@ class _ProfileState extends State<Profile> {
                       ),
                       Card(
                         margin: EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 8.0),
+                            horizontal: 12.0, vertical: 8.0),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             children: <Widget>[
-                              Row(
+                              Column(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "County",
-                                          style: TextStyle(
-                                              color: Colors.green.shade700,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                        SizedBox(
-                                          height: 7,
-                                        ),
-                                        Text(
-                                          user['county'] ?? 'Nairobi',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w300),
-                                        )
-                                      ],
-                                    ),
+                                  // Expanded(
+                                  // child:
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "County",
+                                        style: TextStyle(
+                                            color: Colors.green.shade700,
+                                            fontSize: 22.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Wrap(
+                                        children: List<Widget>.generate(
+                                            cees.length, (int index) {
+                                          return Container(
+                                            margin: EdgeInsets.all(6.0),
+                                            child: Chip(
+                                              elevation: 6.0,
+                                              padding: EdgeInsets.all(10.0),
+                                              shape: StadiumBorder(
+                                                side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                      rand.nextInt(150),
+                                                      rand.nextInt(255),
+                                                      rand.nextInt(255),
+                                                      rand.nextInt(255),
+                                                    ),
+                                                    style: BorderStyle.solid,
+                                                    width: 1.2),
+                                              ),
+                                              backgroundColor: Colors.white,
+                                              label: Text(
+                                                cees[index],
+                                                style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    color: Colors.black45,
+                                                    letterSpacing: 2.0,
+                                                    fontWeight:
+                                                        FontWeight.w300),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ],
                                   ),
-                                  Expanded(
-                                    child: Column(
-                                      children: [
-                                        Text(
-                                          "Sub-County",
-                                          style: TextStyle(
-                                              color: Colors.green.shade700,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                        SizedBox(
-                                          height: 7,
-                                        ),
-                                        Text(
-                                          user['subcounty'] ?? "Lang'ata",
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 22.0,
-                                              fontWeight: FontWeight.w300),
-                                        )
-                                      ],
-                                    ),
+                                  SizedBox(
+                                    height: 25,
                                   ),
+                                  // ),
+                                  // Expanded(
+                                  //   child:
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "Sub-County",
+                                        style: TextStyle(
+                                            color: Colors.green.shade700,
+                                            fontSize: 22.0,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      Wrap(
+                                        children: List<Widget>.generate(
+                                            subcees.length, (int index) {
+                                          return Container(
+                                            margin: EdgeInsets.all(6.0),
+                                            child: Chip(
+                                              elevation: 6.0,
+                                              padding: EdgeInsets.all(10.0),
+                                              shape: StadiumBorder(
+                                                side: BorderSide(
+                                                    color: Color.fromARGB(
+                                                      rand.nextInt(150),
+                                                      rand.nextInt(255),
+                                                      rand.nextInt(255),
+                                                      rand.nextInt(255),
+                                                    ),
+                                                    style: BorderStyle.solid,
+                                                    width: 1.2),
+                                              ),
+                                              backgroundColor: Colors.white,
+                                              label: Text(
+                                                subcees[index],
+                                                style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    color: Colors.black45,
+                                                    letterSpacing: 2.0,
+                                                    fontWeight:
+                                                        FontWeight.w300),
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                  // ),
                                 ],
                               ),
                             ],
                           ),
                         ),
+                      ),
+                      SizedBox(
+                        height: 20,
                       ),
                       SizedBox(
                         height: 10,

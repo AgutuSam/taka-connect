@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:takaconnect/auth/counties.dart';
 import 'package:takaconnect/modules/categories.dart';
@@ -41,6 +42,8 @@ class _SignupPageState extends State<SignupPage> {
       length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   Map dropDownMap = {};
+  List countie = [];
+  List subCountie = [];
 
   final _formKey = GlobalKey<FormState>();
   final name = TextEditingController();
@@ -80,7 +83,8 @@ class _SignupPageState extends State<SignupPage> {
         bool isDate = false,
         bool isDropDown = false,
         TextInputType inpuType = TextInputType.text,
-        List? dropList}) {
+        bool ischeck = false,
+        List<dynamic>? dropList}) {
       return Card(
         margin: EdgeInsets.only(left: 30, right: 30, top: 30),
         elevation: 11,
@@ -210,6 +214,14 @@ class _SignupPageState extends State<SignupPage> {
         String email,
         String image,
         String imageName) async {
+      Map<String, String> counties = Map<String, String>();
+      countie.asMap().forEach((key, value) {
+        counties.putIfAbsent(key.toString(), () => value);
+      });
+      Map<String, String> subCounties = Map<String, String>();
+      subCountie.asMap().forEach((key, value) {
+        subCounties.putIfAbsent(key.toString(), () => value);
+      });
       var firebaseUser = FirebaseAuth.instance.currentUser;
       setState(() {
         verifyLoading = !verifyLoading;
@@ -219,8 +231,8 @@ class _SignupPageState extends State<SignupPage> {
           "name": name,
           "phone": firebaseUser.phoneNumber,
           "gender": gender,
-          "county": county.asMap(),
-          "subcounty": subcounty.asMap(),
+          "county": counties,
+          "subcounty": subCounties,
           "collectionPoint": collectionPoint,
           "role": role,
           "email": email,
@@ -319,8 +331,8 @@ class _SignupPageState extends State<SignupPage> {
                                       ? addUser(
                                           name.text,
                                           dropDownMap['Gender'],
-                                          dropDownMap['County'],
-                                          dropDownMap['Sub-County'],
+                                          countie,
+                                          subCountie,
                                           dropDownMap['Collection Points'],
                                           dropDownMap['Roles'],
                                           '',
@@ -336,103 +348,271 @@ class _SignupPageState extends State<SignupPage> {
                             Step(
                               title: Text('Personal Detail*'),
                               content: Column(children: <Widget>[
-                                _entryField('Name', controller: name),
-                                _entryField('Gender',
-                                    controller: gender,
-                                    isDropDown: true,
-                                    dropList: ['Male', 'Female']),
+                                _entryField('Name',
+                                    controller: name,
+                                    isIcon: Icons.account_circle_outlined),
+                                Card(
+                                    margin: EdgeInsets.only(
+                                        left: 30, right: 30, top: 30),
+                                    elevation: 11,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(12))),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width -
+                                          60,
+                                      child: DropdownButtonHideUnderline(
+                                        child: ButtonTheme(
+                                          alignedDropdown: true,
+                                          child: DropdownButton(
+                                            iconEnabledColor: Color(0xFF0000E2),
+                                            hint: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 12),
+                                                  child: Icon(
+                                                    !dropDownMap.containsKey(
+                                                            'Gender')
+                                                        ? FontAwesomeIcons
+                                                            .genderless
+                                                        : dropDownMap[
+                                                                    'Gender'] ==
+                                                                'Male'
+                                                            ? FontAwesomeIcons
+                                                                .male
+                                                            : dropDownMap[
+                                                                        'Gender'] ==
+                                                                    'Female'
+                                                                ? FontAwesomeIcons
+                                                                    .female
+                                                                : FontAwesomeIcons
+                                                                    .genderless,
+                                                    color: Color(0xFF0000E2),
+                                                  ),
+                                                ),
+                                                Text(
+                                                    dropDownMap['Gender'] ==
+                                                            null
+                                                        ? 'Gender'
+                                                        : dropDownMap['Gender'],
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFF0000E2))),
+                                              ],
+                                            ),
+                                            items: ['Male', 'Female']
+                                                .map((var value) {
+                                              return DropdownMenuItem(
+                                                  value: value,
+                                                  child: Text(value,
+                                                      style: TextStyle(
+                                                          color:
+                                                              Colors.black)));
+                                            }).toList(),
+                                            onChanged: (val) {
+                                              setState(() {
+                                                dropDownMap['Gender'] = val;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    )),
                               ]),
                             ),
                             Step(
                               title: Text('Location Detail*'),
                               content: Column(children: <Widget>[
-                                _entryField('County',
-                                    controller: county,
-                                    isDropDown: true,
-                                    dropList: Counties.countyList
-                                        .asMap()
-                                        .entries
-                                        .where((element) =>
-                                            element.value.name != 'default')
-                                        .map((e) {
-                                      dropDownMap['County'].isEmpty
-                                          ? dropDownMap['County'] = []
-                                          : dropDownMap['County'] =
-                                              dropDownMap['County'];
-                                      return Row(
-                                        children: <Widget>[
-                                          Checkbox(
-                                            onChanged: (bool? value) {
+                                Card(
+                                  margin: EdgeInsets.only(
+                                      left: 30, right: 30, top: 30),
+                                  elevation: 11,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(12))),
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width - 60,
+                                    child: DropdownButtonHideUnderline(
+                                      child: ButtonTheme(
+                                        alignedDropdown: true,
+                                        child: DropdownButton(
+                                          iconEnabledColor: Color(0xFF0000E2),
+                                          hint: Row(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 12),
+                                                child: Icon(
+                                                  Icons.map,
+                                                  color: Color(0xFF0000E2),
+                                                ),
+                                              ),
+                                              Text('County',
+                                                  style: TextStyle(
+                                                      color:
+                                                          Color(0xFF0000E2))),
+                                            ],
+                                          ),
+                                          items: Counties.countyList
+                                              .asMap()
+                                              .entries
+                                              .where((element) =>
+                                                  element.value.name !=
+                                                  'default')
+                                              .map((val) {
+                                            return DropdownMenuItem(
+                                                value: val.value.name,
+                                                onTap: () {
+                                                  !countie.contains(
+                                                          val.value.name)
+                                                      ? countie
+                                                          .add(val.value.name)
+                                                      : countie.remove(
+                                                          val.value.name);
+                                                  print(
+                                                      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
+                                                  print(countie.length > 0);
+                                                  print(countie.isEmpty);
+                                                  print(countie);
+                                                  print(
+                                                      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY');
+                                                },
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: <Widget>[
+                                                    Text(val.value.name),
+                                                    Icon(
+                                                      !countie.contains(
+                                                              val.value.name)
+                                                          ? Icons
+                                                              .check_box_outline_blank
+                                                          : Icons.check_box,
+                                                      color: Colors.green[600],
+                                                    ),
+                                                  ],
+                                                ));
+                                          }).toList(),
+                                          onChanged: (v) {
+                                            setState(() {
+                                              dropDownMap['County'] = v;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: countie.isNotEmpty,
+                                  child: Card(
+                                    margin: EdgeInsets.only(
+                                        left: 30, right: 30, top: 30),
+                                    elevation: 11,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(12))),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width -
+                                          60,
+                                      child: DropdownButtonHideUnderline(
+                                        child: ButtonTheme(
+                                          alignedDropdown: true,
+                                          child: DropdownButton(
+                                            iconEnabledColor: Color(0xFF0000E2),
+                                            hint: Row(
+                                              children: [
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 12),
+                                                  child: Icon(
+                                                    Icons.maps_home_work_sharp,
+                                                    color: Color(0xFF0000E2),
+                                                  ),
+                                                ),
+                                                Text('Sub-County',
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xFF0000E2))),
+                                              ],
+                                            ),
+                                            items: Counties.countyList
+                                                .asMap()
+                                                .entries
+                                                .where((element) =>
+                                                    element.value.name !=
+                                                    'default')
+                                                .where((element) =>
+                                                    countie.contains(
+                                                        element.value.name))
+                                                .map((v) => v.value.subCounties)
+                                                .toList()
+                                                .expand((x) {
+                                                  return x;
+                                                })
+                                                .toList()
+                                                .asMap()
+                                                .entries
+                                                .map((val) {
+                                                  return DropdownMenuItem(
+                                                      value: val.value,
+                                                      onTap: () {
+                                                        !subCountie.contains(
+                                                                val.value)
+                                                            ? subCountie
+                                                                .add(val.value)
+                                                            : subCountie.remove(
+                                                                val.value);
+                                                        print(
+                                                            'GHHHGHGHGHGHGHGHGHGHGHGHGHGHHH');
+                                                        print(
+                                                            subCountie.length >
+                                                                0);
+                                                        print(
+                                                            subCountie.isEmpty);
+                                                        print(
+                                                            subCountie.contains(
+                                                                val.value));
+                                                        print(subCountie);
+                                                        print(
+                                                            'GHHHGHGHGHGHGHGHGHGHGHGHGHGHHH');
+                                                      },
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: <Widget>[
+                                                          Text(val.value),
+                                                          Icon(
+                                                            !subCountie.contains(
+                                                                    val.value)
+                                                                ? Icons
+                                                                    .check_box_outline_blank
+                                                                : Icons
+                                                                    .check_box,
+                                                            color: Colors
+                                                                .green[600],
+                                                          ),
+                                                        ],
+                                                      ));
+                                                })
+                                                .toList(),
+                                            onChanged: (v) {
                                               setState(() {
-                                                value != null && value
-                                                    ? dropDownMap['County']
-                                                        .add(e.value.name)
-                                                    : dropDownMap['County']
-                                                        .remove(e.value.name);
-                                                print(dropDownMap['County']);
+                                                dropDownMap['Sub-County'] = v;
                                               });
                                             },
-                                            value: dropDownMap['County']
-                                                .contains(e.value.name),
                                           ),
-                                          Text(e.value.name),
-                                        ],
-                                      );
-                                    }).toList()),
-                                // Visibility(
-                                //   visible:
-                                dropDownMap.containsKey('County')
-                                    ?
-                                    // child:
-                                    _entryField('Sub-County',
-                                        controller: subcounty,
-                                        isDropDown: true,
-                                        dropList: Counties.countyList
-                                            .asMap()
-                                            .entries
-                                            .where((element) =>
-                                                element.value.name != 'default')
-                                            .map((e) => e.value.subCounties)
-                                            .toList()
-                                            .expand((x) {
-                                              return x;
-                                            })
-                                            .toList()
-                                            .asMap()
-                                            .entries
-                                            .map((v) {
-                                              dropDownMap['County'].isEmpty
-                                                  ? dropDownMap['County'] = []
-                                                  : dropDownMap['County'] =
-                                                      dropDownMap['County'];
-                                              return Row(
-                                                children: <Widget>[
-                                                  Checkbox(
-                                                    onChanged: (bool? value) {
-                                                      setState(() {
-                                                        value != null && value
-                                                            ? dropDownMap[
-                                                                    'Sub-County']
-                                                                .add(v
-                                                                    .value.name)
-                                                            : dropDownMap[
-                                                                    'Sub-County']
-                                                                .remove(v.value
-                                                                    .name);
-                                                        print(dropDownMap[
-                                                            'Sub-County']);
-                                                      });
-                                                    },
-                                                    value: dropDownMap['County']
-                                                        .contains(v.value.name),
-                                                  ),
-                                                  Text(v.value.name),
-                                                ],
-                                              );
-                                            })
-                                            .toList())
-                                    : Container(),
-                                // ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ]),
                             ),
                             Step(
@@ -440,9 +620,11 @@ class _SignupPageState extends State<SignupPage> {
                               content: Column(children: <Widget>[
                                 _entryField('Collection Points',
                                     isDropDown: true,
+                                    isIcon: Icons.maps_ugc_rounded,
                                     dropList: ['point1', 'point2', 'point3']),
                                 _entryField('Roles',
                                     isDropDown: true,
+                                    isIcon: Icons.group_work,
                                     dropList: [
                                       'Collectors',
                                       'Buyers',
