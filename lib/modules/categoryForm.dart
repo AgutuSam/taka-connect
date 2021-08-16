@@ -62,7 +62,7 @@ class _CategoryFormState extends State<CategoryForm> {
             ? dropDownMap['Date'] = dropDownMap['Date']
             : dropDownMap['Date'] = selectedEndDate;
         dropDownMap['user'] = firebaseUser!.uid;
-        dropDownMap['Request'] = 'def';
+        dropDownMap['Request'] = {};
         await wasteColl.add(dropDownMap).then((value) {
           showDialog(
               context: context,
