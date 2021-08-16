@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:takaconnect/auxiliary/terms_and_conditions.dart';
-import 'package:takaconnect/modules/categories.dart';
 import 'package:takaconnect/modules/categoryHome.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';

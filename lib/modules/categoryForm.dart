@@ -62,6 +62,7 @@ class _CategoryFormState extends State<CategoryForm> {
             ? dropDownMap['Date'] = dropDownMap['Date']
             : dropDownMap['Date'] = selectedEndDate;
         dropDownMap['user'] = firebaseUser!.uid;
+        dropDownMap['Request'] = 'def';
         await wasteColl.add(dropDownMap).then((value) {
           showDialog(
               context: context,
@@ -123,49 +124,50 @@ class _CategoryFormState extends State<CategoryForm> {
                                       ),
                                     ],
                                   ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(Icons.brightness_1_sharp,
-                                              color: dropDownMap['Color'] ==
-                                                      'Red'
-                                                  ? Colors.red
-                                                  : dropDownMap[
-                                                              'Color'] ==
-                                                          'Orange'
-                                                      ? Colors.orange
-                                                      : dropDownMap[
-                                                                  'Color'] ==
-                                                              'Yellow'
-                                                          ? Colors.yellow
-                                                          : dropDownMap[
-                                                                      'Color'] ==
-                                                                  'Green'
-                                                              ? Colors.green
-                                                              : dropDownMap[
-                                                                          'Color'] ==
-                                                                      'Blue'
-                                                                  ? Colors.blue
-                                                                  : dropDownMap[
-                                                                              'Color'] ==
-                                                                          'Indigo'
-                                                                      ? Colors
-                                                                          .indigo
-                                                                      : dropDownMap['Color'] ==
-                                                                              'Violet'
-                                                                          ? Color(
-                                                                              0xFF8F00FF)
-                                                                          : Colors
-                                                                              .transparent),
-                                          SizedBox(width: 2),
-                                          Text(dropDownMap['Color']),
-                                        ],
-                                      ),
-                                      Text(dropDownMap['Size']),
-                                    ],
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            Icon(Icons.brightness_1_sharp,
+                                                color: dropDownMap['Color'] ==
+                                                        'Red'
+                                                    ? Colors.red
+                                                    : dropDownMap['Color'] ==
+                                                            'Orange'
+                                                        ? Colors.orange
+                                                        : dropDownMap[
+                                                                    'Color'] ==
+                                                                'Yellow'
+                                                            ? Colors.yellow
+                                                            : dropDownMap[
+                                                                        'Color'] ==
+                                                                    'Green'
+                                                                ? Colors.green
+                                                                : dropDownMap[
+                                                                            'Color'] ==
+                                                                        'Blue'
+                                                                    ? Colors
+                                                                        .blue
+                                                                    : dropDownMap['Color'] ==
+                                                                            'Indigo'
+                                                                        ? Colors
+                                                                            .indigo
+                                                                        : dropDownMap['Color'] ==
+                                                                                'Violet'
+                                                                            ? Color(0xFF8F00FF)
+                                                                            : Colors.transparent),
+                                            SizedBox(width: 2),
+                                            Text(dropDownMap['Color']),
+                                          ],
+                                        ),
+                                        Text(dropDownMap['Size']),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -184,7 +186,6 @@ class _CategoryFormState extends State<CategoryForm> {
                                       ),
                                       Text(
                                         dropDownMap["Quality"],
-                                        style: label,
                                       ),
                                     ],
                                   ),
@@ -197,34 +198,39 @@ class _CategoryFormState extends State<CategoryForm> {
                                       ),
                                       Text(
                                         'Kilograms',
-                                        style: label,
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 10.0),
+                              SizedBox(height: 20.0),
                               Container(
                                 child: Column(
                                   children: <Widget>[
                                     Text('Waste added successfully!'),
+                                    SizedBox(height: 20.0),
                                     Text('Wish to add another?'),
                                   ],
                                 ),
                               ),
                               Expanded(
                                   child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: <Widget>[
-                                  ElevatedButton(
+                                  TextButton.icon(
+                                    icon: Icon(Icons.add),
                                     onPressed: () {
-                                       setState(() {
-      verifyLoading = !verifyLoading;
-    });
+                                      setState(() {
+                                        verifyLoading = !verifyLoading;
+                                      });
                                       Navigator.pop(context);
                                     },
-                                    child: Text('Add'),
+                                    label: Text('Add'),
                                   ),
-                                  ElevatedButton(
+                                  TextButton.icon(
+                                    icon: Icon(Icons.cancel),
+                                    label: Text('Cancel'),
                                     onPressed: () {
                                       Navigator.push(
                                           context,
@@ -232,7 +238,6 @@ class _CategoryFormState extends State<CategoryForm> {
                                               builder: (context) =>
                                                   CategoryHomePage()));
                                     },
-                                    child: Text('Cancel'),
                                   )
                                 ],
                               ))
@@ -296,6 +301,7 @@ class _CategoryFormState extends State<CategoryForm> {
             ? buy()
             : widget.category.capitalize() == 'Recyclers'
                 ? recycle()
+                // ignore: unnecessary_statements
                 : null;
   }
 

@@ -7,13 +7,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:takaconnect/auth/counties.dart';
-import 'package:takaconnect/modules/categories.dart';
 import 'package:takaconnect/modules/categoryHome.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
-import 'package:path/path.dart' as path;
 
 class SignupPage extends StatefulWidget {
   SignupPage(this.state);
@@ -83,7 +80,6 @@ class _SignupPageState extends State<SignupPage> {
         bool isDate = false,
         bool isDropDown = false,
         TextInputType inpuType = TextInputType.text,
-        bool ischeck = false,
         List<dynamic>? dropList}) {
       return Card(
         margin: EdgeInsets.only(left: 30, right: 30, top: 30),

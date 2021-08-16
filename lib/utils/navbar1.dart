@@ -4,13 +4,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:takaconnect/auth/signIn.dart';
-import 'package:takaconnect/auth/signUp.dart';
 import 'package:takaconnect/auxiliary/contact.dart';
 import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
-import 'package:takaconnect/auxiliary/terms_and_conditions.dart';
-import 'package:takaconnect/modules/categories.dart';
 import 'package:takaconnect/modules/categoryHome.dart';
 import 'package:takaconnect/utils/oval-right-clipper.dart';
 

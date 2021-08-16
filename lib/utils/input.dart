@@ -3,6 +3,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 typedef StringValue = String Function(String);
 
+// ignore: must_be_immutable
 class InputCard extends StatefulWidget {
   InputCard(this.title, this.callback,
       {this.isPassword = false,

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:like_button/like_button.dart';
 import 'package:takaconnect/auxiliary/messageThread.dart';
 
@@ -78,7 +79,6 @@ class _WasteDialogState extends State<WasteDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     setFavAndRates();
     super.initState();
   }
@@ -150,7 +150,6 @@ class _WasteDialogState extends State<WasteDialog> {
                         ),
                         SizedBox(height: 20.0),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Column(
@@ -163,6 +162,7 @@ class _WasteDialogState extends State<WasteDialog> {
                               ],
                             ),
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Row(
@@ -269,41 +269,142 @@ class _WasteDialogState extends State<WasteDialog> {
                               }),
                         ),
                         SizedBox(height: 20.0),
-                        InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MessageThread(
-                                  palid: data['user'],
+                        Container(
+                          padding: EdgeInsets.all(10.0),
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(5.0)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                child: TextButton.icon(
+                                  icon: Icon(Icons.message_outlined),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MessageThread(
+                                          palid: data['user'],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  label: Text(
+                                    'Message',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w800),
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(10.0),
-                            decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(5.0)),
-                            child: Row(
-                              children: <Widget>[
-                                CircleAvatar(
-                                  backgroundColor: Colors.green,
-                                  child: Icon(Icons.messenger_outline_sharp,
-                                      color: Colors.white),
-                                ),
-                                SizedBox(width: 10.0),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      'Message',
-                                      style: label,
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
+                              Expanded(
+                                child: StreamBuilder<QuerySnapshot>(
+                                    stream: wasteDoc
+                                        // .doc(widget.wasteId)
+                                        // .collection('Request')
+                                        .snapshots(),
+                                    builder: (BuildContext context, snapshot) {
+                                      List<DocumentSnapshot> data =
+                                          snapshot.data!.docs;
+                                      var res = data
+                                          .where((element) =>
+                                              element.id == widget.wasteId)
+                                          .first;
+                                      return res['Request']
+                                              .containsKey(auser!.uid)
+                                          ? TextButton.icon(
+                                              icon: Icon(Icons.add),
+                                              onPressed: () async {
+                                                res['Request'][auser!.uid] ==
+                                                        true
+                                                    ? wasteDoc
+                                                        .doc(widget.wasteId)
+                                                        .set({
+                                                        'Request.${auser!.uid}':
+                                                            false
+                                                      })
+                                                    : wasteDoc
+                                                        .doc(widget.wasteId)
+                                                        .set({
+                                                        'Request.${auser!.uid}':
+                                                            true
+                                                      });
+                                              },
+                                              label: res['Request']
+                                                          [auser!.uid] ==
+                                                      true
+                                                  ? Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          'Requested',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800,
+                                                              color:
+                                                                  Colors.green),
+                                                        ),
+                                                        Icon(
+                                                            FontAwesomeIcons
+                                                                .smileWink,
+                                                            color: Colors.green)
+                                                      ],
+                                                    )
+                                                  : Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceEvenly,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          'Request',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800,
+                                                              color:
+                                                                  Colors.amber),
+                                                        ),
+                                                        Icon(
+                                                            FontAwesomeIcons
+                                                                .mehRollingEyes,
+                                                            color: Colors.amber)
+                                                      ],
+                                                    ),
+                                            )
+                                          : TextButton.icon(
+                                              icon: Icon(Icons.add),
+                                              onPressed: () async {
+                                                wasteDoc
+                                                    .doc(widget.wasteId)
+                                                    .set({
+                                                  'Request.${auser!.uid}': true
+                                                });
+                                              },
+                                              label: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: <Widget>[
+                                                  Text(
+                                                    'Request',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Colors.amber),
+                                                  ),
+                                                  Icon(
+                                                      FontAwesomeIcons
+                                                          .mehRollingEyes,
+                                                      color: Colors.amber)
+                                                ],
+                                              ),
+                                            );
+                                    }),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(
@@ -459,6 +560,7 @@ class _WasteDialogState extends State<WasteDialog> {
                                                     .collection('favorite')
                                                     .doc(auser!.uid)
                                                     .delete();
+
                                             return !state;
                                           },
                                         );

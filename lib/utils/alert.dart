@@ -48,6 +48,7 @@ class BeautifulAlertDialog extends StatelessWidget {
                     Row(
                       children: <Widget>[
                         Expanded(
+                          // ignore: deprecated_member_use
                           child: RaisedButton(
                             child: Text("Cancel"),
                             color: Colors.red,

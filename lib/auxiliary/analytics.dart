@@ -31,84 +31,80 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   final CollectionReference wasteDoc =
       FirebaseFirestore.instance.collection('waste');
+  bool showSpinner = true;
 
-  static const TextStyle label = TextStyle(
-    // h6 -> title
-    // fontFamily: fontName,
-    fontWeight: FontWeight.bold,
-    fontSize: 36,
-    letterSpacing: 0.18,
-    color: Colors.orange,
-    decoration: TextDecoration.underline,
-  );
+  spinner() async {
+    await Future.delayed(Duration(seconds: 3)).then((value) => setState(() {
+          showSpinner = !showSpinner;
+        }));
+  }
 
   String trash = 'All';
   late List<DataRow> dRow;
   getDataBody() {
-    List<DataRow> _dRow = [];
-
     return StreamBuilder<QuerySnapshot>(
         stream: trash == 'All'
             ? wasteDoc
-                .where(widget.role == 'Collectors' ? 'user' : 'alien',
+                .where('user',
                     isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)
-                .orderBy('Date')
+                .orderBy('Date', descending: true)
                 .snapshots()
             : wasteDoc
-                .where(widget.role == 'Collectors' ? 'user' : 'alien',
+                .where('user',
                     isEqualTo: FirebaseAuth.instance.currentUser!.uid)
                 .where('Waste Category', isEqualTo: trash)
                 .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
                 .where('Date', isLessThanOrEqualTo: selectedEndDate)
-                .orderBy('Date')
+                .orderBy('Date', descending: true)
                 .snapshots(),
         builder: (BuildContext context, snapshot) {
           if (!snapshot.hasData) {
-            return BeautifulAlertDialog('No such data yet');
+            // return CircularProgressIndicator();
+            return showSpinner
+                ? CircularProgressIndicator()
+                : BeautifulAlertDialog('No such data yet');
           } else {
             List<DocumentSnapshot> data = snapshot.data!.docs;
             return data.isEmpty
-                ? BeautifulAlertDialog('No data for this type yet')
-                : Container(
+                ? showSpinner
+                    ? CircularProgressIndicator()
+                    : BeautifulAlertDialog('No data for this type yet')
+                : SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
                     child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: [
-                            DataColumn(label: Text('Date')),
-                            DataColumn(label: Text('Type')),
-                            DataColumn(label: Text('Quantity (KG)')),
-                          ],
-                          rows:
-                              List<DataRow>.generate(data.length, (int index) {
-                            return DataRow(cells: [
-                              DataCell(
-                                Text(
-                                    "${dateFormat.format(DateTime.parse(data[index]['Date'].toDate().toString()))}",
-                                    textAlign: TextAlign.center),
-                              ),
-                              DataCell(
-                                Container(
-                                  width: 72,
-                                  child: RichText(
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    strutStyle: StrutStyle(fontSize: 12.0),
-                                    text: TextSpan(
-                                        style: TextStyle(color: Colors.black),
-                                        text:
-                                            "${data[index]['Material Type']}"),
-                                  ),
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Text('Date')),
+                          DataColumn(label: Text('Type')),
+                          DataColumn(label: Text('Quantity (KG)')),
+                        ],
+                        rows: List<DataRow>.generate(data.length, (int index) {
+                          return DataRow(cells: [
+                            DataCell(
+                              Text(
+                                  "${dateFormat.format(DateTime.parse(data[index]['Date'].toDate().toString()))}",
+                                  textAlign: TextAlign.center),
+                            ),
+                            DataCell(
+                              Container(
+                                width: 72,
+                                child: RichText(
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  strutStyle: StrutStyle(fontSize: 12.0),
+                                  text: TextSpan(
+                                      style: TextStyle(color: Colors.black),
+                                      text: "${data[index]['Material Type']}"),
                                 ),
                               ),
-                              DataCell(Text("${data[index]['Quantity']}",
-                                  textAlign: TextAlign.center)),
-                            ]);
-                          }),
-                        ),
+                            ),
+                            DataCell(Text("${data[index]['Quantity']}",
+                                textAlign: TextAlign.center)),
+                          ]);
+                        }),
                       ),
                     ),
                   );
@@ -153,6 +149,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
   }
 
   @override
+  void initState() {
+    spinner();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(245, 240, 35, 0.96),
@@ -177,6 +179,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                 InputCard(
                   'Type of Trash',
                   (val) {
+                    spinner();
                     setState(() {
                       trash = val.toString();
                     });
@@ -198,85 +201,85 @@ class _AnalysisPageState extends State<AnalysisPage> {
                 width: MediaQuery.of(context).size.width > 1280
                     ? 414
                     : MediaQuery.of(context).size.width,
-                child: SizedBox(
-                  height: MediaQuery.of(context).viewInsets.bottom == 0
-                      ? MediaQuery.of(context).size.height * 0.7
-                      : MediaQuery.of(context).size.height * 0.9,
-                  child: Card(
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: 16.0, right: 4, left: 4),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                            'Taka',
-                            style: TextStyle(color: Colors.green, fontSize: 24),
+                child: Card(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 16.0, right: 4, left: 4),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          'Taka',
+                          style: TextStyle(color: Colors.green, fontSize: 24),
+                        ),
+                        Divider(),
+                        Container(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: getDataBody(),
                           ),
-                          Divider(),
-                          getDataBody(),
-                          // rows: [
-                          //   DataRow(cells: [
-                          //     DataCell(Text('17/05/2021')),
-                          //     DataCell(Text('Rubber')),
-                          //     DataCell(Text('5')),
-                          //   ]),
-                          //   DataRow(cells: [
-                          //     DataCell(Text('21/07/2021')),
-                          //     DataCell(Text('Steel')),
-                          //     DataCell(Text('58')),
-                          //   ]),
-                          //   DataRow(cells: [
-                          //     DataCell(Text('11/06/2021')),
-                          //     DataCell(Text('Glass')),
-                          //     DataCell(Text('17')),
-                          //   ]),
-                          // ),
-                          // SizedBox(height: 30.0),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          //   children: <Widget>[
-                          //     Text(
-                          //       "Total Collection",
-                          //       style: label,
-                          //     ),
-                          //   ],
-                          // ),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          //   children: <Widget>[
-                          //     Text(
-                          //       '900 KG',
-                          //       style: TextStyle(
-                          //           color: Colors.green[600], fontSize: 54),
-                          //     ),
-                          //     // Text(data['Waste Category']),
-                          //     // Text(data['Material Type']),
-                          //   ],
-                          // ),
-                          // SizedBox(height: 40.0),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          //   children: <Widget>[
-                          //     Text(
-                          //       "Total Sales",
-                          //       style: label,
-                          //     ),
-                          //   ],
-                          // ),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          //   children: <Widget>[
-                          //     Text(
-                          //       'Ksh 19,000',
-                          //       style: TextStyle(
-                          //           color: Colors.green[600], fontSize: 54),
-                          //     ),
-                          //     // Text(data['Waste Category']),
-                          //     // Text(data['Material Type']),
-                          //   ],
-                          // ),
-                        ],
-                      ),
+                        ),
+                        // rows: [
+                        //   DataRow(cells: [
+                        //     DataCell(Text('17/05/2021')),
+                        //     DataCell(Text('Rubber')),
+                        //     DataCell(Text('5')),
+                        //   ]),
+                        //   DataRow(cells: [
+                        //     DataCell(Text('21/07/2021')),
+                        //     DataCell(Text('Steel')),
+                        //     DataCell(Text('58')),
+                        //   ]),
+                        //   DataRow(cells: [
+                        //     DataCell(Text('11/06/2021')),
+                        //     DataCell(Text('Glass')),
+                        //     DataCell(Text('17')),
+                        //   ]),
+                        // ),
+                        // SizedBox(height: 30.0),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //   children: <Widget>[
+                        //     Text(
+                        //       "Total Collection",
+                        //       style: label,
+                        //     ),
+                        //   ],
+                        // ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //   children: <Widget>[
+                        //     Text(
+                        //       '900 KG',
+                        //       style: TextStyle(
+                        //           color: Colors.green[600], fontSize: 54),
+                        //     ),
+                        //     // Text(data['Waste Category']),
+                        //     // Text(data['Material Type']),
+                        //   ],
+                        // ),
+                        // SizedBox(height: 40.0),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //   children: <Widget>[
+                        //     Text(
+                        //       "Total Sales",
+                        //       style: label,
+                        //     ),
+                        //   ],
+                        // ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        //   children: <Widget>[
+                        //     Text(
+                        //       'Ksh 19,000',
+                        //       style: TextStyle(
+                        //           color: Colors.green[600], fontSize: 54),
+                        //     ),
+                        //     // Text(data['Waste Category']),
+                        //     // Text(data['Material Type']),
+                        //   ],
+                        // ),
+                      ],
                     ),
                   ),
                 ),
@@ -293,6 +296,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
       child: Text(
           'Start: ${selectedStartDate.day} / ${selectedStartDate.month} / ${selectedStartDate.year}'),
       onPressed: () {
+        spinner();
         DatePicker.showDatePicker(context,
             theme: DatePickerTheme(
               containerHeight: 210.0,
@@ -314,6 +318,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
       child: Text(
           'End: ${selectedEndDate.day} / ${selectedEndDate.month} / ${selectedEndDate.year}'),
       onPressed: () {
+        spinner();
         DatePicker.showDatePicker(context,
             theme: DatePickerTheme(
               containerHeight: 210.0,

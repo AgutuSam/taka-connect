@@ -232,6 +232,7 @@ class Team {
   ];
   static List rubber = ['Shoe/Flip Flops', 'Tyre'];
   static List foam = ['Matress', 'Styrofoam', 'Foam'];
+  // ignore: non_constant_identifier_names
   static List e_waste = [
     'Cooling Equipment',
     'Telecommunication Equipment',

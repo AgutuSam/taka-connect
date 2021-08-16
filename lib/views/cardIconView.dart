@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:takaconnect/auxiliary/upload.dart';
 import 'package:takaconnect/modules/categoryForm.dart';
-import 'package:takaconnect/modules/subCategories.dart';
 import 'package:takaconnect/views/cardList.dart';
 
 class CardIconView extends StatelessWidget {

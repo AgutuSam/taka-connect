@@ -7,7 +7,6 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:takaconnect/auth/signIn.dart';
-import 'package:takaconnect/auth/signIn.dart';
 import 'package:takaconnect/utils/alert.dart';
 import 'package:takaconnect/utils/navbar1.dart';
 import 'package:path/path.dart' as path;
@@ -63,7 +62,6 @@ class _ProfileState extends State<Profile> {
 
   @override
   void initState() {
-    // TODO: implement initState
     profilePic = false;
     super.initState();
   }
@@ -131,6 +129,7 @@ class _ProfileState extends State<Profile> {
     final picker = ImagePicker();
     PickedFile? pickedImage;
     try {
+      // ignore: deprecated_member_use
       pickedImage = await picker.getImage(
           source: inputSource == 'camera'
               ? ImageSource.camera

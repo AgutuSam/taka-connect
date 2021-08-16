@@ -1,9 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:takaconnect/auth/signIn.dart';
 import 'package:takaconnect/auxiliary/analytics.dart';
-import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
 import 'package:takaconnect/auxiliary/messageProfiles.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
