@@ -63,6 +63,8 @@ class _CategoryFormState extends State<CategoryForm> {
             : dropDownMap['Date'] = selectedEndDate;
         dropDownMap['user'] = firebaseUser!.uid;
         dropDownMap['Request'] = {};
+        dropDownMap['State'] = false;
+        dropDownMap['Alien'] = '';
         await wasteColl.add(dropDownMap).then((value) {
           showDialog(
               context: context,
@@ -221,9 +223,6 @@ class _CategoryFormState extends State<CategoryForm> {
                                   TextButton.icon(
                                     icon: Icon(Icons.add),
                                     onPressed: () {
-                                      setState(() {
-                                        verifyLoading = !verifyLoading;
-                                      });
                                       Navigator.pop(context);
                                     },
                                     label: Text('Add'),

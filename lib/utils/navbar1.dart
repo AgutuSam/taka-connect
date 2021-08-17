@@ -3,12 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:takaconnect/auth/signIn.dart';
 import 'package:takaconnect/auxiliary/contact.dart';
 import 'package:takaconnect/auxiliary/feedback_screen.dart';
 import 'package:takaconnect/auxiliary/help_screen.dart';
 import 'package:takaconnect/auxiliary/profile.dart';
 import 'package:takaconnect/modules/categoryHome.dart';
+import 'package:takaconnect/modules/requests.dart';
 import 'package:takaconnect/utils/oval-right-clipper.dart';
 
 class NavBar1 extends StatefulWidget {
@@ -153,6 +155,9 @@ class _NavBar1State extends State<NavBar1> {
                       }),
                   SizedBox(height: 30.0),
                   _buildRow(Icons.home, 'Home', context, CategoryHomePage()),
+                  _buildDivider(),
+                  _buildRow(FontAwesomeIcons.stackOverflow, 'Requests', context,
+                      Requests()),
                   _buildDivider(),
                   _buildRow(Icons.person, 'Profile', context, Profile()),
                   _buildDivider(),
