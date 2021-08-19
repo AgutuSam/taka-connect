@@ -29,9 +29,14 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
   var auth = FirebaseAuth.instance.currentUser;
 
+  final CollectionReference userDoc =
+      FirebaseFirestore.instance.collection('users');
   final CollectionReference wasteDoc =
       FirebaseFirestore.instance.collection('waste');
   bool showSpinner = true;
+  Map uzer = {};
+  String trash = 'All';
+  late List<DataRow> dRow;
 
   spinner() async {
     await Future.delayed(Duration(seconds: 3)).then((value) => setState(() {
@@ -39,117 +44,18 @@ class _AnalysisPageState extends State<AnalysisPage> {
         }));
   }
 
-  String trash = 'All';
-  late List<DataRow> dRow;
-  getDataBody() {
-    return StreamBuilder<QuerySnapshot>(
-        stream: trash == 'All'
-            ? wasteDoc
-                .where('user',
-                    isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
-                .where('Date', isLessThanOrEqualTo: selectedEndDate)
-                .orderBy('Date', descending: true)
-                .snapshots()
-            : wasteDoc
-                .where('user',
-                    isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                .where('Waste Category', isEqualTo: trash)
-                .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
-                .where('Date', isLessThanOrEqualTo: selectedEndDate)
-                .orderBy('Date', descending: true)
-                .snapshots(),
-        builder: (BuildContext context, snapshot) {
-          if (!snapshot.hasData) {
-            // return CircularProgressIndicator();
-            return showSpinner
-                ? CircularProgressIndicator()
-                : BeautifulAlertDialog('No such data yet');
-          } else {
-            List<DocumentSnapshot> data = snapshot.data!.docs;
-            return data.isEmpty
-                ? showSpinner
-                    ? CircularProgressIndicator()
-                    : BeautifulAlertDialog('No data for this type yet')
-                : SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: [
-                          DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Type')),
-                          DataColumn(label: Text('Quantity (KG)')),
-                        ],
-                        rows: List<DataRow>.generate(data.length, (int index) {
-                          return DataRow(cells: [
-                            DataCell(
-                              Text(
-                                  "${dateFormat.format(DateTime.parse(data[index]['Date'].toDate().toString()))}",
-                                  textAlign: TextAlign.center),
-                            ),
-                            DataCell(
-                              Container(
-                                width: 72,
-                                child: RichText(
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  strutStyle: StrutStyle(fontSize: 12.0),
-                                  text: TextSpan(
-                                      style: TextStyle(color: Colors.black),
-                                      text: "${data[index]['Material Type']}"),
-                                ),
-                              ),
-                            ),
-                            DataCell(Text("${data[index]['Quantity']}",
-                                textAlign: TextAlign.center)),
-                          ]);
-                        }),
-                      ),
-                    ),
-                  );
-          }
-        });
-    // wasteDoc
-    //     .where('Waste Category', arrayContainsAny: [trash, ''])
-    //     .where('Date', isGreaterThanOrEqualTo: selectedStartDate)
-    //     .where('Date', isLessThanOrEqualTo: selectedEndDate)
-    //     .orderBy('Date')
-    //     .get()
-    //     .then((value) {
-    //       var _tabList = value.docs.asMap().entries.map((widget) {
-    //         print('KEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEY');
-    //         print(widget.value.data());
-    //         print('KEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEYKEY');
-    //         return widget.key;
-    //       }).toList();
-    //       Map prods = value.docs.asMap();
-    //       print('****************************');
-    //       print(value);
-    //       // print(_tabList);
-    //       // print(_tabList.toString());
-    //       // print(prods[_tabList[0]]['Material Type']);
-    //       print('****************************');
-
-    //       for (int i = 0; i < _tabList.length; i++) {
-    //         _dRow.add(
-    //           DataRow(cells: [
-    //             DataCell(Text('${prods[_tabList[i]]['Date']}')),
-    //             DataCell(Text('${prods[_tabList[i]]['Material Type']}')),
-    //             DataCell(Text('${prods[_tabList[i]]['Quantity']}')),
-    //           ]),
-    //         );
-    //       }
-    //       setState(() {
-    //         dRow = _dRow;
-    //       });
-    //     });
-
-    // return _dRow;
+  Future getUser() async {
+    await userDoc.doc(auth!.uid).get().then((value) => setState(() {
+          uzer = value.data() as Map<String, dynamic>;
+          print('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWe');
+          print(uzer['role']);
+          print('WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWe');
+        }));
   }
 
   @override
   void initState() {
+    getUser();
     spinner();
     super.initState();
   }
@@ -194,9 +100,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
           Padding(
             padding: const EdgeInsets.only(top: 150.0, right: 12, left: 12),
             child: Align(
-              alignment: MediaQuery.of(context).viewInsets.bottom == 0
-                  ? Alignment.center
-                  : Alignment.topCenter,
+              alignment: Alignment.topCenter,
               child: Container(
                 width: MediaQuery.of(context).size.width > 1280
                     ? 414
@@ -205,81 +109,218 @@ class _AnalysisPageState extends State<AnalysisPage> {
                   child: Padding(
                     padding:
                         const EdgeInsets.only(top: 16.0, right: 4, left: 4),
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          'Taka',
-                          style: TextStyle(color: Colors.green, fontSize: 24),
-                        ),
-                        Divider(),
-                        Container(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: getDataBody(),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            'Taka',
+                            style: TextStyle(color: Colors.green, fontSize: 24),
                           ),
-                        ),
-                        // rows: [
-                        //   DataRow(cells: [
-                        //     DataCell(Text('17/05/2021')),
-                        //     DataCell(Text('Rubber')),
-                        //     DataCell(Text('5')),
-                        //   ]),
-                        //   DataRow(cells: [
-                        //     DataCell(Text('21/07/2021')),
-                        //     DataCell(Text('Steel')),
-                        //     DataCell(Text('58')),
-                        //   ]),
-                        //   DataRow(cells: [
-                        //     DataCell(Text('11/06/2021')),
-                        //     DataCell(Text('Glass')),
-                        //     DataCell(Text('17')),
-                        //   ]),
-                        // ),
-                        // SizedBox(height: 30.0),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        //   children: <Widget>[
-                        //     Text(
-                        //       "Total Collection",
-                        //       style: label,
-                        //     ),
-                        //   ],
-                        // ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        //   children: <Widget>[
-                        //     Text(
-                        //       '900 KG',
-                        //       style: TextStyle(
-                        //           color: Colors.green[600], fontSize: 54),
-                        //     ),
-                        //     // Text(data['Waste Category']),
-                        //     // Text(data['Material Type']),
-                        //   ],
-                        // ),
-                        // SizedBox(height: 40.0),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        //   children: <Widget>[
-                        //     Text(
-                        //       "Total Sales",
-                        //       style: label,
-                        //     ),
-                        //   ],
-                        // ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        //   children: <Widget>[
-                        //     Text(
-                        //       'Ksh 19,000',
-                        //       style: TextStyle(
-                        //           color: Colors.green[600], fontSize: 54),
-                        //     ),
-                        //     // Text(data['Waste Category']),
-                        //     // Text(data['Material Type']),
-                        //   ],
-                        // ),
-                      ],
+                          Divider(),
+                          Container(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: StreamBuilder<QuerySnapshot>(
+                                    stream: trash == 'All'
+                                        ? uzer['role'] != 'Collectors'
+                                            ? wasteDoc
+                                                .where('Date',
+                                                    isGreaterThanOrEqualTo:
+                                                        selectedStartDate)
+                                                .where('Date',
+                                                    isLessThanOrEqualTo:
+                                                        selectedEndDate.add(const Duration(
+                                                            days: 1)))
+                                                .orderBy('Date',
+                                                    descending: true)
+                                                .snapshots()
+                                            : wasteDoc
+                                                .where('user',
+                                                    isEqualTo: FirebaseAuth
+                                                        .instance
+                                                        .currentUser!
+                                                        .uid)
+                                                .where('Date',
+                                                    isGreaterThanOrEqualTo:
+                                                        selectedStartDate)
+                                                .where('Date',
+                                                    isLessThanOrEqualTo:
+                                                        selectedEndDate.add(
+                                                            const Duration(
+                                                                days: 1)))
+                                                .orderBy('Date',
+                                                    descending: true)
+                                                .snapshots()
+                                        : uzer['role'] != 'Collectors'
+                                            ? wasteDoc
+                                                .where('Waste Category',
+                                                    isEqualTo: trash)
+                                                .where('Date',
+                                                    isGreaterThanOrEqualTo:
+                                                        selectedStartDate)
+                                                .where('Date', isLessThanOrEqualTo: selectedEndDate.add(const Duration(days: 1)))
+                                                .orderBy('Date', descending: true)
+                                                .snapshots()
+                                            : wasteDoc.where('user', isEqualTo: FirebaseAuth.instance.currentUser!.uid).where('Waste Category', isEqualTo: trash).where('Date', isGreaterThanOrEqualTo: selectedStartDate).where('Date', isLessThanOrEqualTo: selectedEndDate.add(const Duration(days: 1))).orderBy('Date', descending: true).snapshots(),
+                                    builder: (BuildContext context, snapshot) {
+                                      if (!snapshot.hasData) {
+                                        // return CircularProgressIndicator();
+                                        return showSpinner
+                                            ? CircularProgressIndicator()
+                                            : BeautifulAlertDialog(
+                                                'No such data yet');
+                                      } else {
+                                        List<DocumentSnapshot> data =
+                                            snapshot.data!.docs;
+                                        List reqs = data
+                                            .asMap()
+                                            .entries
+                                            .where((one) => one.value['Request']
+                                                .containsKey(auth!.uid))
+                                            .where((one) =>
+                                                one.value['Request']
+                                                    [auth!.uid] ==
+                                                true)
+                                            .map((res) => res.value)
+                                            .toList();
+                                        return data.isEmpty
+                                            ? showSpinner
+                                                ? CircularProgressIndicator()
+                                                : BeautifulAlertDialog(
+                                                    'No data for this type yet')
+                                            : DataTable(
+                                                columns: [
+                                                  DataColumn(
+                                                      label: Text('Date')),
+                                                  DataColumn(
+                                                      label: Text('Type')),
+                                                  DataColumn(
+                                                      label: Text(
+                                                          'Quantity (KG)')),
+                                                ],
+                                                rows: List<DataRow>.generate(
+                                                    uzer['role'] != 'Collectors'
+                                                        ? reqs.length
+                                                        : data.length,
+                                                    (int index) {
+                                                  var wasteID = uzer['role'] !=
+                                                          'Collectors'
+                                                      ? reqs[index]
+                                                      : data.toList()[index].id;
+                                                  var val = uzer['role'] !=
+                                                          'Collectors'
+                                                      ? reqs[index]!
+                                                      : data[index];
+                                                  List req = val!['Request']!
+                                                      .entries
+                                                      .where((v) =>
+                                                          v!.value == true)
+                                                      .map((res) {
+                                                    return res!.key;
+                                                  }).toList();
+                                                  print(
+                                                      'EFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEDF');
+                                                  print(uzer['role'] !=
+                                                      'Collectors');
+                                                  print(uzer['role']);
+                                                  print(auth!.uid);
+                                                  print(reqs.length);
+                                                  print(data.length);
+                                                  print(
+                                                      'EFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEFEDF');
+
+                                                  return uzer['role'] !=
+                                                          'Collectors'
+                                                      ? req.isNotEmpty &&
+                                                              req.contains(
+                                                                  auth!.uid)
+                                                          ? DataRow(cells: [
+                                                              DataCell(Text(
+                                                                  "${dateFormat.format(DateTime.parse(val['Date'].toDate().toString()))}",
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center)),
+                                                              DataCell(
+                                                                Container(
+                                                                  width: 72,
+                                                                  child:
+                                                                      RichText(
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                    strutStyle: StrutStyle(
+                                                                        fontSize:
+                                                                            12.0),
+                                                                    text: TextSpan(
+                                                                        style: TextStyle(
+                                                                            color: Colors
+                                                                                .black),
+                                                                        text:
+                                                                            "${val['Material Type']}"),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              DataCell(Text(
+                                                                  "${val['Quantity']}",
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center)),
+                                                            ])
+                                                          : DataRow(cells: [
+                                                              DataCell(
+                                                                  Container()),
+                                                              DataCell(
+                                                                  Container()),
+                                                              DataCell(
+                                                                  Container()),
+                                                            ])
+                                                      : DataRow(cells: [
+                                                          DataCell(
+                                                            Text(
+                                                                "${dateFormat.format(DateTime.parse(data[index]['Date'].toDate().toString()))}",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center),
+                                                          ),
+                                                          DataCell(
+                                                            Container(
+                                                              width: 72,
+                                                              child: RichText(
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                strutStyle:
+                                                                    StrutStyle(
+                                                                        fontSize:
+                                                                            12.0),
+                                                                text: TextSpan(
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black),
+                                                                    text:
+                                                                        "${data[index]['Material Type']}"),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          DataCell(Text(
+                                                              "${data[index]['Quantity']}",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .center)),
+                                                        ]);
+                                                }),
+                                              );
+                                      }
+                                    }),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

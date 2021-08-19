@@ -50,6 +50,9 @@ class _CategoryFormState extends State<CategoryForm> {
     setState(() {
       verifyLoading = !verifyLoading;
     });
+    await Future.delayed(Duration(seconds: 3)).then((value) => setState(() {
+          verifyLoading = !verifyLoading;
+        }));
     if (dropDownMap.containsKey('Waste Category') &&
         dropDownMap.containsKey('Material Type') &&
         dropDownMap.containsKey('Color') &&
@@ -464,11 +467,40 @@ class _CategoryFormState extends State<CategoryForm> {
                                               padding: const EdgeInsets.only(
                                                   right: 12),
                                               child: Icon(
-                                                Icons.money,
-                                                color: Color(0xFF0000E2),
+                                                Icons.brightness_1_sharp,
+                                                color: dropDownMap['Color'] ==
+                                                        'Red'
+                                                    ? Colors.red
+                                                    : dropDownMap['Color'] ==
+                                                            'Orange'
+                                                        ? Colors.orange
+                                                        : dropDownMap[
+                                                                    'Color'] ==
+                                                                'Yellow'
+                                                            ? Colors.yellow
+                                                            : dropDownMap[
+                                                                        'Color'] ==
+                                                                    'Green'
+                                                                ? Colors.green
+                                                                : dropDownMap[
+                                                                            'Color'] ==
+                                                                        'Blue'
+                                                                    ? Colors
+                                                                        .blue
+                                                                    : dropDownMap['Color'] ==
+                                                                            'Indigo'
+                                                                        ? Colors
+                                                                            .indigo
+                                                                        : dropDownMap['Color'] ==
+                                                                                'Violet'
+                                                                            ? Color(0xFF8F00FF)
+                                                                            : Colors.transparent,
                                               ),
                                             ),
-                                            Text('Color',
+                                            Text(
+                                                dropDownMap['Color'] == null
+                                                    ? 'Color'
+                                                    : dropDownMap['Color'],
                                                 style: TextStyle(
                                                     color: Color(0xFF0000E2))),
                                           ],
@@ -594,10 +626,6 @@ class _CategoryFormState extends State<CategoryForm> {
                                     MaterialStateProperty.resolveWith(
                                         getColor)),
                             onPressed: () {
-                              // setState(() {
-                              //   dropDownMap['Characteristics']['Color'] =
-                              //       pickerColor;
-                              // });
                               _submitForm();
                             },
                             child: Text(

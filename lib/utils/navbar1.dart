@@ -125,8 +125,7 @@ class _NavBar1State extends State<NavBar1> {
                               SizedBox(height: 5.0),
                               Text(
                                 // ignore: unnecessary_null_comparison
-                                '${user['name']}' != null &&
-                                        '${user['name']}' != 'null'
+                                '${user['name']}' != null
                                     ? '${user['name']}'
                                     : 'Anonymous User',
                                 style: TextStyle(
@@ -136,8 +135,8 @@ class _NavBar1State extends State<NavBar1> {
                               ),
                               Text(
                                 // ignore: unnecessary_null_comparison
-                                '${auser?.phoneNumber}' != null
-                                    ? '${auser?.phoneNumber}'
+                                '${auser!.phoneNumber}' != null
+                                    ? '${auser!.phoneNumber}'
                                     : '+2547 xx xxx xxxx',
                                 style: TextStyle(color: active, fontSize: 16.0),
                               ),
